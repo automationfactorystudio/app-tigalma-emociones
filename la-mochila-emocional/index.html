@@ -1,0 +1,1196 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La mochila de las emociones</title>
+  <style>
+    :root {
+      --cream: #fffaf0;
+      --mint: #c8f0dc;
+      --sky: #bde7ff;
+      --sun: #ffe38a;
+      --coral: #ff8d7b;
+      --orange: #ffb361;
+      --lilac: #d7c8ff;
+      --ink: #39445c;
+      --soft-ink: #66708a;
+      --card: rgba(255, 255, 255, 0.88);
+      --shadow: 0 18px 40px rgba(76, 99, 138, 0.16);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255, 227, 138, 0.7), transparent 25%),
+        radial-gradient(circle at top right, rgba(215, 200, 255, 0.55), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(200, 240, 220, 0.7), transparent 28%),
+        linear-gradient(180deg, #fffdf6 0%, #f8fbff 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 190px;
+      height: 190px;
+      top: 40px;
+      left: -50px;
+      background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.7) 0 34%, transparent 35%),
+        radial-gradient(circle at 72% 40%, rgba(255, 255, 255, 0.82) 0 24%, transparent 25%),
+        radial-gradient(circle at 32% 68%, rgba(255, 255, 255, 0.82) 0 22%, transparent 23%);
+      filter: drop-shadow(0 12px 20px rgba(145, 164, 195, 0.18));
+      opacity: 0.95;
+    }
+
+    body::after {
+      width: 220px;
+      height: 220px;
+      right: -70px;
+      bottom: 40px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 179, 97, 0.18) 0 30%, transparent 31%),
+        radial-gradient(circle at 68% 35%, rgba(255, 141, 123, 0.2) 0 18%, transparent 19%),
+        radial-gradient(circle at 28% 62%, rgba(189, 231, 255, 0.22) 0 20%, transparent 21%);
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 36px;
+    }
+
+    .screen {
+      position: relative;
+      display: none;
+      animation: fade-up 0.5s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(6px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .hero,
+    .explain,
+    .final-card {
+      padding: 28px;
+      text-align: center;
+    }
+
+    .sticker-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.05;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.6rem, 4vw, 2.5rem);
+    }
+
+    p {
+      margin: 0;
+      color: var(--soft-ink);
+      line-height: 1.55;
+      font-size: clamp(1rem, 2vw, 1.1rem);
+    }
+
+    .subtitle {
+      margin: 14px auto 0;
+      max-width: 660px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .option-btn {
+      border: none;
+      cursor: pointer;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+      font: inherit;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      min-height: 58px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-top: 24px;
+      box-shadow: 0 12px 24px rgba(255, 141, 123, 0.24);
+    }
+
+    .primary-btn {
+      color: #fff;
+      background: linear-gradient(135deg, var(--coral), var(--orange));
+    }
+
+    .secondary-btn {
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--mint), var(--sky));
+      box-shadow: 0 12px 24px rgba(121, 187, 206, 0.2);
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover,
+    .option-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .primary-btn:focus-visible,
+    .secondary-btn:focus-visible,
+    .option-btn:focus-visible {
+      outline: 4px solid rgba(255, 179, 97, 0.45);
+      outline-offset: 3px;
+    }
+
+    .hero-layout,
+    .explain-layout {
+      display: grid;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .hero-layout {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    .explain-layout {
+      grid-template-columns: minmax(320px, 0.95fr) minmax(340px, 1.05fr);
+      gap: 34px;
+    }
+
+    .text-block {
+      text-align: left;
+    }
+
+    .magic-scene {
+      position: relative;
+      min-height: 380px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .spark,
+    .tool-badge,
+    .floating-sticker {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 10px 22px rgba(103, 117, 149, 0.16);
+      animation: bob 3.4s ease-in-out infinite;
+    }
+
+    .spark {
+      width: 46px;
+      height: 46px;
+      font-size: 1.25rem;
+    }
+
+    .tool-badge {
+      min-width: 120px;
+      max-width: 180px;
+      min-height: 54px;
+      padding: 10px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1.2;
+      z-index: 2;
+    }
+
+    .tool-badge:nth-child(2) { top: 18px; left: 10%; animation-delay: -0.4s; }
+    .tool-badge:nth-child(3) { top: 28%; right: 3%; animation-delay: -1.1s; }
+    .tool-badge:nth-child(4) { bottom: 18%; left: 2%; animation-delay: -0.8s; }
+    .tool-badge:nth-child(5) { bottom: 12px; right: 10%; animation-delay: -1.6s; }
+
+    .spark.one { top: 10%; right: 20%; animation-delay: -1s; }
+    .spark.two { bottom: 16%; right: 6%; animation-delay: -2.1s; }
+    .spark.three { left: 14%; bottom: 10%; animation-delay: -0.6s; }
+
+    .backpack-wrap {
+      position: relative;
+      width: min(290px, 78vw);
+      aspect-ratio: 0.9;
+      filter: drop-shadow(0 18px 26px rgba(107, 116, 150, 0.22));
+    }
+
+    .explain-scene {
+      min-height: 430px;
+      padding: 18px 10px;
+    }
+
+    .explain-scene .backpack-wrap {
+      width: min(250px, 62vw);
+    }
+
+    .backpack {
+      position: absolute;
+      inset: 0;
+      border-radius: 34% 34% 26% 26% / 28% 28% 22% 22%;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.6), transparent 18%),
+        linear-gradient(160deg, #ffdd79 0%, #ffb67c 45%, #ff8f87 100%);
+    }
+
+    .backpack::before,
+    .backpack::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .backpack::before {
+      width: 34%;
+      height: 20%;
+      top: -8%;
+      left: 33%;
+      border: 10px solid rgba(255, 163, 102, 0.9);
+      background: transparent;
+    }
+
+    .backpack::after {
+      inset: 22% 18% 18%;
+      border-radius: 26% 26% 22% 22%;
+      background: rgba(255, 250, 240, 0.26);
+      box-shadow: inset 0 -10px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .flap {
+      position: absolute;
+      left: 15%;
+      right: 15%;
+      top: 18%;
+      height: 26%;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #ff8f87, #ff7d86);
+      box-shadow: inset 0 -5px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .front-pocket {
+      position: absolute;
+      left: 23%;
+      right: 23%;
+      bottom: 13%;
+      height: 23%;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18));
+      border: 3px dashed rgba(255, 250, 240, 0.92);
+    }
+
+    .strap {
+      position: absolute;
+      top: 20%;
+      bottom: 12%;
+      width: 14%;
+      background: linear-gradient(180deg, #9ddfcb, #72c8c2);
+      border-radius: 999px;
+      z-index: -1;
+    }
+
+    .strap.left { left: -3%; transform: rotate(9deg); }
+    .strap.right { right: -3%; transform: rotate(-9deg); }
+
+    .inside-tools,
+    .celebration-stickers {
+      position: absolute;
+      inset: 16% 16% 12%;
+      pointer-events: none;
+    }
+
+    .inside-item,
+    .final-sticker {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+      background: rgba(255, 255, 255, 0.76);
+      box-shadow: 0 8px 18px rgba(95, 110, 148, 0.18);
+      animation: float-in 0.45s ease;
+    }
+
+    .inside-item:nth-child(odd),
+    .final-sticker:nth-child(odd) {
+      border-radius: 999px;
+    }
+
+    .progress-bubbles {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 18px 0 0;
+    }
+
+    .progress-bubble {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--soft-ink);
+      box-shadow: 0 10px 18px rgba(109, 130, 166, 0.12);
+      line-height: 1.25;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: 340px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .side-panel,
+    .play-panel {
+      padding: 22px;
+    }
+
+    .side-panel {
+      position: sticky;
+      top: 18px;
+    }
+
+    .side-panel .backpack-wrap {
+      width: min(240px, 60vw);
+      margin: 8px auto 0;
+    }
+
+    .side-header {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .counter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(255, 227, 138, 0.65), rgba(255, 255, 255, 0.9));
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: var(--ink);
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .emotion-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 10px 0 16px;
+    }
+
+    .situation-card {
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 251, 240, 0.86));
+      border-radius: var(--radius-lg);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .question {
+      margin-top: 18px;
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .option-btn {
+      min-height: 92px;
+      padding: 14px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 255, 0.92));
+      box-shadow: 0 12px 20px rgba(109, 130, 166, 0.12);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .option-btn.correct {
+      background: linear-gradient(135deg, #c8f0dc, #e8fff0);
+      box-shadow: 0 14px 26px rgba(120, 191, 143, 0.22);
+    }
+
+    .option-btn.wrong {
+      animation: wiggle 0.45s ease;
+      background: linear-gradient(135deg, #fff1ec, #fff9ef);
+    }
+
+    .option-btn.dimmed {
+      opacity: 0.7;
+    }
+
+    .feedback-panel {
+      min-height: 120px;
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(243, 248, 255, 0.9));
+      border: 2px solid rgba(255, 255, 255, 0.85);
+    }
+
+    .feedback-panel.good {
+      border-color: rgba(111, 199, 142, 0.48);
+    }
+
+    .feedback-panel.try {
+      border-color: rgba(255, 166, 129, 0.48);
+    }
+
+    .feedback-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .feedback-panel p + p {
+      margin-top: 8px;
+    }
+
+    .next-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .final-score {
+      margin: 18px auto 0;
+      padding: 16px 18px;
+      max-width: 420px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255, 227, 138, 0.5), rgba(189, 231, 255, 0.45));
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .final-backpack {
+      margin: 22px auto 0;
+      max-width: 320px;
+    }
+
+    .final-backpack .backpack-wrap {
+      width: min(320px, 74vw);
+      margin: 0 auto;
+    }
+
+    .floating-sticker {
+      width: 42px;
+      height: 42px;
+      font-size: 1.15rem;
+    }
+
+    .floating-sticker.a { top: 10%; left: 12%; }
+    .floating-sticker.b { top: 16%; right: 14%; animation-delay: -1.2s; }
+    .floating-sticker.c { bottom: 22%; left: 7%; animation-delay: -0.6s; }
+    .floating-sticker.d { bottom: 12%; right: 8%; animation-delay: -1.8s; }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes float-in {
+      from { opacity: 0; transform: scale(0.4) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    @media (max-width: 920px) {
+      .hero-layout,
+      .explain-layout,
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .text-block {
+        text-align: center;
+      }
+
+      .side-panel {
+        position: static;
+      }
+
+      .explain-scene {
+        min-height: 360px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        width: min(100% - 18px, 100%);
+        padding-top: 12px;
+      }
+
+      .hero,
+      .explain,
+      .side-panel,
+      .play-panel,
+      .final-card {
+        padding: 18px;
+      }
+
+      .magic-scene {
+        min-height: 310px;
+      }
+
+      .explain-scene {
+        min-height: 330px;
+        padding: 8px 0;
+      }
+
+      .explain-scene .backpack-wrap,
+      .side-panel .backpack-wrap {
+        width: min(220px, 68vw);
+      }
+
+      .tool-badge {
+        min-width: 96px;
+        max-width: 138px;
+        font-size: 0.8rem;
+        padding: 8px 10px;
+      }
+
+      .tool-badge:nth-child(2) { left: 4%; top: 8px; }
+      .tool-badge:nth-child(3) { right: 1%; top: 26%; }
+      .tool-badge:nth-child(4) { left: 0; bottom: 16%; }
+      .tool-badge:nth-child(5) { right: 4%; bottom: 10px; }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .option-btn {
+        min-height: 76px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="screen active" id="screen-start">
+      <div class="card hero">
+        <div class="sticker-row" aria-hidden="true">
+          <span>💛</span>
+          <span>⭐</span>
+          <span>☁️</span>
+          <span>🍃</span>
+          <span>✨</span>
+        </div>
+        <div class="hero-layout">
+          <div class="text-block">
+            <h1>La mochila de las emociones</h1>
+            <p class="subtitle">Elige una herramienta para cuidar tu corazón.</p>
+            <button class="primary-btn" id="start-btn">Empezar</button>
+          </div>
+          <div class="magic-scene explain-scene" aria-hidden="true">
+            <div class="spark one">✨</div>
+            <div class="spark two">💛</div>
+            <div class="spark three">⭐</div>
+            <div class="backpack-wrap">
+              <div class="strap left"></div>
+              <div class="strap right"></div>
+              <div class="backpack"></div>
+              <div class="flap"></div>
+              <div class="front-pocket"></div>
+            </div>
+            <div class="floating-sticker a">💖</div>
+            <div class="floating-sticker b">🌈</div>
+            <div class="floating-sticker c">🫶</div>
+            <div class="floating-sticker d">🌟</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-explain">
+      <div class="card explain">
+        <div class="explain-layout">
+          <div class="magic-scene" aria-hidden="true">
+            <div class="tool-badge">Respirar despacito</div>
+            <div class="tool-badge">Pedir ayuda</div>
+            <div class="tool-badge">Hablar de lo que siento</div>
+            <div class="tool-badge">Buscar un lugar tranquilo</div>
+            <div class="backpack-wrap">
+              <div class="strap left"></div>
+              <div class="strap right"></div>
+              <div class="backpack"></div>
+              <div class="flap"></div>
+              <div class="front-pocket"></div>
+            </div>
+          </div>
+          <div class="text-block">
+            <h2>Una mochila invisible y muy especial</h2>
+            <p>Todos tenemos una mochila invisible. En ella podemos guardar ideas que nos ayudan cuando una emoción se hace muy grande.</p>
+            <button class="secondary-btn" id="explain-btn">Llenar mi mochila</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-game">
+      <div class="game-layout">
+        <aside class="card side-panel">
+          <div class="side-header">
+            <div class="counter" id="round-counter">Ronda 1 de 25</div>
+            <div class="progress-bubbles">
+              <span class="progress-bubble" id="score-pill">Herramientas guardadas: 0</span>
+            </div>
+          </div>
+          <div class="backpack-wrap" aria-hidden="true">
+            <div class="strap left"></div>
+            <div class="strap right"></div>
+            <div class="backpack"></div>
+            <div class="flap"></div>
+            <div class="front-pocket"></div>
+            <div class="inside-tools" id="inside-tools"></div>
+          </div>
+        </aside>
+
+        <section class="card play-panel">
+          <div class="emotion-chip" id="emotion-chip"></div>
+          <div class="situation-card">
+            <h2 id="situation-title">Situación</h2>
+            <p id="situation-text"></p>
+            <div class="question">¿Qué herramienta guardarías en tu mochila?</div>
+          </div>
+
+          <div class="options-grid" id="options-grid"></div>
+
+          <div class="feedback-panel" id="feedback-panel" aria-live="polite">
+            <div class="feedback-title">Elige una herramienta para empezar.</div>
+            <p>Piensa cuál puede ayudarte mejor con esa emoción.</p>
+          </div>
+
+          <div class="next-wrap">
+            <button class="secondary-btn hidden" id="next-btn">Siguiente</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-final">
+      <div class="card final-card">
+        <div class="sticker-row" aria-hidden="true">
+          <span>⭐</span>
+          <span>💛</span>
+          <span>🌟</span>
+          <span>💖</span>
+          <span>✨</span>
+        </div>
+        <h2>Tu mochila emocional está llena de herramientas para cuidar tu corazón.</h2>
+        <p>Has practicado ideas bonitas para el enfado, la alegría, el miedo, la tristeza y el amor.</p>
+        <div class="final-score" id="final-score"></div>
+        <div class="final-backpack">
+          <div class="backpack-wrap" aria-hidden="true">
+            <div class="strap left"></div>
+            <div class="strap right"></div>
+            <div class="backpack"></div>
+            <div class="flap"></div>
+            <div class="front-pocket"></div>
+            <div class="celebration-stickers" id="celebration-stickers"></div>
+          </div>
+        </div>
+        <button class="primary-btn" id="restart-btn">Jugar otra vez</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const toolIcons = {
+      "Respirar despacito": "🌬️",
+      "Pedir ayuda": "🫶",
+      "Pedir un abrazo": "🤗",
+      "Hablar de lo que siento": "💬",
+      "Descansar": "🌙",
+      "Compartir mi alegría": "🎉",
+      "Cuidar con cariño": "💖",
+      "Contar hasta cinco": "✋",
+      "Dibujar lo que siento": "🎨",
+      "Buscar un lugar tranquilo": "🌿",
+      "Dar las gracias": "🙏",
+      "Celebrar con respeto": "🎈",
+      "Guardar un recuerdo bonito": "📸",
+      "Ayudar con amabilidad": "🤝",
+      "Preparar un detalle bonito": "🎁"
+    };
+
+    const emotionStyles = {
+      "Enfado": { icon: "🔥", color: "linear-gradient(135deg, #ffd6b2, #ffb287)" },
+      "Tristeza": { icon: "💧", color: "linear-gradient(135deg, #d5ebff, #b9d7ff)" },
+      "Miedo": { icon: "🌙", color: "linear-gradient(135deg, #ded8ff, #c5d3ff)" },
+      "Alegría": { icon: "🌞", color: "linear-gradient(135deg, #ffe38a, #ffc773)" },
+      "Amor": { icon: "💗", color: "linear-gradient(135deg, #ffd7de, #ffc4d4)" }
+    };
+
+    const situations = [
+      {
+        emotion: "Enfado",
+        title: "Tus piezas se mueven",
+        text: "Alguien mueve tus piezas cuando estabas construyendo algo.",
+        correctTool: "Respirar despacito",
+        options: ["Respirar despacito", "Compartir mi alegría", "Pedir un abrazo", "Cuidar con cariño"],
+        explanation: "Cuando sentimos enfado, respirar despacito nos ayuda a parar antes de actuar y a notar mejor lo que necesitamos."
+      },
+      {
+        emotion: "Enfado",
+        title: "Quieres hablar",
+        text: "Quieres participar, pero no te dejan hablar.",
+        correctTool: "Hablar de lo que siento",
+        options: ["Hablar de lo que siento", "Guardar un recuerdo bonito", "Celebrar con respeto", "Descansar"],
+        explanation: "Poner palabras al enfado ayuda a pedir turno y a explicar lo que pasa sin hacer daño."
+      },
+      {
+        emotion: "Enfado",
+        title: "Hay que parar el juego",
+        text: "Tienes que dejar un juego antes de terminar.",
+        correctTool: "Contar hasta cinco",
+        options: ["Contar hasta cinco", "Compartir mi alegría", "Ayudar con amabilidad", "Pedir ayuda"],
+        explanation: "Contar hasta cinco da un pequeño descanso al cuerpo para aceptar el cambio con más calma."
+      },
+      {
+        emotion: "Enfado",
+        title: "No sale como quieres",
+        text: "Te sale mal algo después de intentarlo muchas veces.",
+        correctTool: "Buscar un lugar tranquilo",
+        options: ["Buscar un lugar tranquilo", "Preparar un detalle bonito", "Pedir un abrazo", "Dar las gracias"],
+        explanation: "Alejarse un momento a un lugar tranquilo ayuda a bajar el enfado y volver a intentarlo con la cabeza más clara."
+      },
+      {
+        emotion: "Enfado",
+        title: "La norma parece injusta",
+        text: "Sientes que una norma no ha sido justa.",
+        correctTool: "Hablar de lo que siento",
+        options: ["Hablar de lo que siento", "Guardar un recuerdo bonito", "Compartir mi alegría", "Dibujar lo que siento"],
+        explanation: "Hablar de lo que sentimos permite explicar por qué algo nos molesta y buscar una solución con respeto."
+      },
+      {
+        emotion: "Tristeza",
+        title: "Una pegatina especial",
+        text: "Se pierde una pegatina que te gustaba mucho.",
+        correctTool: "Pedir un abrazo",
+        options: ["Pedir un abrazo", "Celebrar con respeto", "Contar hasta cinco", "Pedir ayuda"],
+        explanation: "Un abrazo cariñoso puede hacer que la tristeza se sienta más acompañada y menos pesada."
+      },
+      {
+        emotion: "Tristeza",
+        title: "La tarde termina",
+        text: "Termina una tarde divertida y no querías que acabara.",
+        correctTool: "Hablar de lo que siento",
+        options: ["Hablar de lo que siento", "Compartir mi alegría", "Respirar despacito", "Ayudar con amabilidad"],
+        explanation: "Hablar de la tristeza ayuda a despedirse de un momento bonito y a sentirlo con calma."
+      },
+      {
+        emotion: "Tristeza",
+        title: "Echas de menos",
+        text: "No puedes estar con alguien a quien echas de menos.",
+        correctTool: "Descansar",
+        options: ["Descansar", "Preparar un detalle bonito", "Cuidar con cariño", "Contar hasta cinco"],
+        explanation: "Cuando el corazón está blandito, descansar un poco puede dar espacio para sentir sin cansarse tanto."
+      },
+      {
+        emotion: "Tristeza",
+        title: "Te equivocas",
+        text: "Te equivocas en algo y te sientes pequeño por dentro.",
+        correctTool: "Dibujar lo que siento",
+        options: ["Dibujar lo que siento", "Dar las gracias", "Compartir mi alegría", "Buscar un lugar tranquilo"],
+        explanation: "Dibujar lo que sentimos ayuda a sacar la tristeza fuera y a mirarla con más suavidad."
+      },
+      {
+        emotion: "Tristeza",
+        title: "Ves tristeza en otra persona",
+        text: "Ves a alguien triste y también se te encoge el corazón.",
+        correctTool: "Hablar de lo que siento",
+        options: ["Hablar de lo que siento", "Celebrar con respeto", "Pedir ayuda", "Guardar un recuerdo bonito"],
+        explanation: "Contar cómo se siente tu corazón ayuda a comprender la tristeza y a no quedarte solo con ella."
+      },
+      {
+        emotion: "Miedo",
+        title: "Algo nuevo",
+        text: "Tienes que probar una actividad nueva.",
+        correctTool: "Pedir ayuda",
+        options: ["Pedir ayuda", "Compartir mi alegría", "Pedir un abrazo", "Cuidar con cariño"],
+        explanation: "Pedir ayuda cuando hay miedo nos recuerda que no tenemos que hacerlo todo solos."
+      },
+      {
+        emotion: "Miedo",
+        title: "Mucha gente alrededor",
+        text: "Entras en un sitio donde hay mucha gente.",
+        correctTool: "Respirar despacito",
+        options: ["Respirar despacito", "Preparar un detalle bonito", "Dar las gracias", "Dibujar lo que siento"],
+        explanation: "Respirar despacito le dice al cuerpo que puede ir poco a poco aunque algo impresione."
+      },
+      {
+        emotion: "Miedo",
+        title: "Un ruido extraño",
+        text: "Escuchas un ruido que no reconoces.",
+        correctTool: "Buscar un lugar tranquilo",
+        options: ["Buscar un lugar tranquilo", "Compartir mi alegría", "Descansar", "Celebrar con respeto"],
+        explanation: "Buscar un lugar tranquilo ayuda a escuchar mejor, mirar con calma y sentir más seguridad."
+      },
+      {
+        emotion: "Miedo",
+        title: "Dormir en otro sitio",
+        text: "Tienes que dormir en una habitación diferente.",
+        correctTool: "Contar hasta cinco",
+        options: ["Contar hasta cinco", "Guardar un recuerdo bonito", "Ayudar con amabilidad", "Cuidar con cariño"],
+        explanation: "Contar hasta cinco puede hacer que el miedo baje un poquito y que la nueva habitación parezca menos grande."
+      },
+      {
+        emotion: "Miedo",
+        title: "No sabes qué pasará",
+        text: "No sabes qué va a pasar en una situación nueva.",
+        correctTool: "Pedir ayuda",
+        options: ["Pedir ayuda", "Pedir un abrazo", "Compartir mi alegría", "Preparar un detalle bonito"],
+        explanation: "Preguntar y pedir ayuda cuando algo es nuevo hace que el miedo tenga menos dudas dentro."
+      },
+      {
+        emotion: "Alegría",
+        title: "Lo haces tú solo",
+        text: "Consigues hacer algo tú solo.",
+        correctTool: "Compartir mi alegría",
+        options: ["Compartir mi alegría", "Respirar despacito", "Buscar un lugar tranquilo", "Pedir ayuda"],
+        explanation: "Compartir la alegría hace que el momento bonito crezca y se vuelva aún más especial."
+      },
+      {
+        emotion: "Alegría",
+        title: "Una noticia bonita",
+        text: "Recibes una noticia que te hace sonreír.",
+        correctTool: "Dar las gracias",
+        options: ["Dar las gracias", "Pedir un abrazo", "Contar hasta cinco", "Dibujar lo que siento"],
+        explanation: "Dar las gracias ayuda a cuidar la alegría con cariño y a valorar lo bueno que llega."
+      },
+      {
+        emotion: "Alegría",
+        title: "Jugar juntos",
+        text: "Juegas con alguien y lo pasáis muy bien.",
+        correctTool: "Celebrar con respeto",
+        options: ["Celebrar con respeto", "Descansar", "Pedir ayuda", "Buscar un lugar tranquilo"],
+        explanation: "Celebrar con respeto permite disfrutar mucho sin olvidar cómo se sienten los demás."
+      },
+      {
+        emotion: "Alegría",
+        title: "Una sorpresa bonita",
+        text: "Preparas una sorpresa bonita.",
+        correctTool: "Guardar un recuerdo bonito",
+        options: ["Guardar un recuerdo bonito", "Respirar despacito", "Pedir un abrazo", "Hablar de lo que siento"],
+        explanation: "Guardar un recuerdo bonito ayuda a que la alegría permanezca en el corazón y vuelva después."
+      },
+      {
+        emotion: "Alegría",
+        title: "Orgullo por tu esfuerzo",
+        text: "Te sientes orgulloso de tu esfuerzo.",
+        correctTool: "Compartir mi alegría",
+        options: ["Compartir mi alegría", "Descansar", "Pedir ayuda", "Cuidar con cariño"],
+        explanation: "Compartir la alegría por el propio esfuerzo enseña a reconocer lo que has conseguido con una sonrisa sana."
+      },
+      {
+        emotion: "Amor",
+        title: "Quieres consolar",
+        text: "Quieres consolar a alguien que está triste.",
+        correctTool: "Cuidar con cariño",
+        options: ["Cuidar con cariño", "Contar hasta cinco", "Buscar un lugar tranquilo", "Celebrar con respeto"],
+        explanation: "El amor cuida. Mostrar cariño ayuda a la otra persona a sentirse vista y acompañada."
+      },
+      {
+        emotion: "Amor",
+        title: "Cuidas algo especial",
+        text: "Cuidas una planta, una mascota o un objeto especial.",
+        correctTool: "Cuidar con cariño",
+        options: ["Cuidar con cariño", "Pedir ayuda", "Compartir mi alegría", "Descansar"],
+        explanation: "Cuidar con cariño enseña que el amor también se muestra en los pequeños gestos de cada día."
+      },
+      {
+        emotion: "Amor",
+        title: "Ayudas a alguien pequeño",
+        text: "Ayudas a alguien más pequeño.",
+        correctTool: "Ayudar con amabilidad",
+        options: ["Ayudar con amabilidad", "Respirar despacito", "Dibujar lo que siento", "Guardar un recuerdo bonito"],
+        explanation: "Ayudar con amabilidad es una forma de amor que hace sentir bien a quien ayuda y a quien recibe."
+      },
+      {
+        emotion: "Amor",
+        title: "Cariño en familia",
+        text: "Quieres demostrar cariño a tu familia.",
+        correctTool: "Preparar un detalle bonito",
+        options: ["Preparar un detalle bonito", "Contar hasta cinco", "Buscar un lugar tranquilo", "Compartir mi alegría"],
+        explanation: "Preparar un detalle bonito es una forma dulce de decir 'te quiero' con acciones."
+      },
+      {
+        emotion: "Amor",
+        title: "Compartes algo importante",
+        text: "Compartes algo importante para ti.",
+        correctTool: "Dar las gracias",
+        options: ["Dar las gracias", "Pedir ayuda", "Respirar despacito", "Descansar"],
+        explanation: "Dar las gracias cuida el amor porque reconoce el valor del momento compartido y de la otra persona."
+      }
+    ];
+
+    const screens = {
+      start: document.getElementById("screen-start"),
+      explain: document.getElementById("screen-explain"),
+      game: document.getElementById("screen-game"),
+      final: document.getElementById("screen-final")
+    };
+
+    const startBtn = document.getElementById("start-btn");
+    const explainBtn = document.getElementById("explain-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const roundCounter = document.getElementById("round-counter");
+    const scorePill = document.getElementById("score-pill");
+    const emotionChip = document.getElementById("emotion-chip");
+    const situationTitle = document.getElementById("situation-title");
+    const situationText = document.getElementById("situation-text");
+    const optionsGrid = document.getElementById("options-grid");
+    const feedbackPanel = document.getElementById("feedback-panel");
+    const insideTools = document.getElementById("inside-tools");
+    const finalScore = document.getElementById("final-score");
+    const celebrationStickers = document.getElementById("celebration-stickers");
+
+    let state = {
+      round: 0,
+      score: 0,
+      answered: false,
+      order: []
+    };
+
+    function shuffle(array) {
+      const clone = [...array];
+      for (let index = clone.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [clone[index], clone[swapIndex]] = [clone[swapIndex], clone[index]];
+      }
+      return clone;
+    }
+
+    function showScreen(name) {
+      Object.values(screens).forEach((screen) => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function resetGame() {
+      state = {
+        round: 0,
+        score: 0,
+        answered: false,
+        order: shuffle(situations)
+      };
+      insideTools.innerHTML = "";
+      celebrationStickers.innerHTML = "";
+      nextBtn.classList.add("hidden");
+      renderRound();
+    }
+
+    function renderRound() {
+      const current = state.order[state.round];
+      state.answered = false;
+      roundCounter.textContent = `Ronda ${state.round + 1} de ${state.order.length}`;
+      scorePill.textContent = `Herramientas guardadas: ${state.score}`;
+      const style = emotionStyles[current.emotion];
+      emotionChip.style.background = style.color;
+      emotionChip.textContent = `${style.icon} Emoción: ${current.emotion}`;
+      situationTitle.textContent = current.title;
+      situationText.textContent = current.text;
+      feedbackPanel.className = "feedback-panel";
+      feedbackPanel.innerHTML = `
+        <div class="feedback-title">Elige una herramienta para empezar.</div>
+        <p>Piensa cuál puede ayudarte mejor con esa emoción.</p>
+      `;
+      nextBtn.classList.add("hidden");
+      renderOptions(current);
+    }
+
+    function renderOptions(current) {
+      optionsGrid.innerHTML = "";
+      current.options.forEach((tool) => {
+        const button = document.createElement("button");
+        button.className = "option-btn";
+        button.type = "button";
+        button.innerHTML = `<span>${toolIcons[tool] || "✨"}</span><br>${tool}`;
+        button.addEventListener("click", () => handleAnswer(tool, button, current));
+        optionsGrid.appendChild(button);
+      });
+    }
+
+    function handleAnswer(selectedTool, selectedButton, current) {
+      if (state.answered) {
+        return;
+      }
+
+      state.answered = true;
+      const buttons = [...optionsGrid.querySelectorAll(".option-btn")];
+      const isCorrect = selectedTool === current.correctTool;
+
+      buttons.forEach((button) => {
+        button.disabled = true;
+        if (button !== selectedButton) {
+          button.classList.add("dimmed");
+        }
+        if (button.textContent.includes(current.correctTool)) {
+          button.classList.add("correct");
+        }
+      });
+
+      if (isCorrect) {
+        selectedButton.classList.add("correct");
+        state.score += 1;
+        scorePill.textContent = `Herramientas guardadas: ${state.score}`;
+        addToolToBackpack(current.correctTool);
+        feedbackPanel.classList.add("good");
+        feedbackPanel.innerHTML = `
+          <div class="feedback-title">¡Muy bien! Esa herramienta ayuda a cuidar tu corazón.</div>
+          <p>${current.explanation}</p>
+          <p>La emoción principal aquí es ${current.emotion.toLowerCase()}, y esta herramienta puede acompañarte de forma saludable.</p>
+        `;
+      } else {
+        selectedButton.classList.add("wrong");
+        feedbackPanel.classList.add("try");
+        feedbackPanel.innerHTML = `
+          <div class="feedback-title">Casi, casi... quizá otra herramienta ayudaría mejor en esta situación.</div>
+          <p>${current.explanation}</p>
+          <p>La emoción principal aquí es ${current.emotion.toLowerCase()}, y por eso <strong>${current.correctTool}</strong> encaja mejor.</p>
+        `;
+      }
+
+      nextBtn.textContent = state.round === state.order.length - 1 ? "Ver mi mochila" : "Siguiente";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function addToolToBackpack(tool) {
+      const item = document.createElement("div");
+      item.className = "inside-item";
+      item.textContent = toolIcons[tool] || "✨";
+      item.title = tool;
+      const count = insideTools.children.length;
+      const positions = [
+        { top: "12%", left: "16%" },
+        { top: "20%", right: "12%" },
+        { top: "40%", left: "28%" },
+        { top: "46%", right: "24%" },
+        { bottom: "20%", left: "12%" },
+        { bottom: "16%", right: "14%" },
+        { bottom: "4%", left: "34%" },
+        { top: "30%", left: "6%" },
+        { top: "8%", right: "30%" },
+        { bottom: "34%", right: "2%" }
+      ];
+      const position = positions[count % positions.length];
+      Object.assign(item.style, position);
+      insideTools.appendChild(item);
+    }
+
+    function renderFinal() {
+      finalScore.textContent = `Has guardado ${state.score} de ${state.order.length} herramientas adecuadas.`;
+      celebrationStickers.innerHTML = "";
+      const totalStickers = Math.max(6, Math.min(12, state.score));
+      const stickers = ["⭐", "💖", "✨", "🌟", "💛", "🫶"];
+      for (let index = 0; index < totalStickers; index += 1) {
+        const sticker = document.createElement("div");
+        sticker.className = "final-sticker";
+        sticker.textContent = stickers[index % stickers.length];
+        sticker.style.top = `${8 + (index % 4) * 20}%`;
+        sticker.style.left = `${10 + ((index * 17) % 68)}%`;
+        celebrationStickers.appendChild(sticker);
+      }
+      showScreen("final");
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (state.round === state.order.length - 1) {
+        renderFinal();
+        return;
+      }
+      state.round += 1;
+      renderRound();
+    });
+
+    startBtn.addEventListener("click", () => showScreen("explain"));
+    explainBtn.addEventListener("click", () => {
+      resetGame();
+      showScreen("game");
+    });
+    restartBtn.addEventListener("click", () => {
+      resetGame();
+      showScreen("game");
+    });
+  </script>
+<script>(function(){var b=document.createElement("a");b.href="https://emociones.metodo7d.es/";b.textContent="🏠 Volver al inicio";b.style.cssText="position:fixed;top:16px;left:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.95);color:#314052;text-decoration:none;padding:8px 18px;border-radius:999px;font-size:0.85rem;font-weight:600;box-shadow:0 3px 16px rgba(0,0,0,0.15);border:1px solid rgba(0,0,0,0.09);font-family:inherit;";document.body.appendChild(b);})();</script>
+</body>
+</html>
+

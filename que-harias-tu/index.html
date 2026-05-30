@@ -1,0 +1,891 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elige qué harías</title>
+  <style>
+    :root {
+      --cream: #fffaf0;
+      --sky: #dff3ff;
+      --mint: #d8f6e7;
+      --sun: #ffe58f;
+      --coral: #ff9e8f;
+      --orange: #ffbf7a;
+      --lilac: #e7dcff;
+      --text: #314052;
+      --shadow: 0 18px 45px rgba(74, 103, 135, 0.18);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 229, 143, 0.85), transparent 28%),
+        radial-gradient(circle at top right, rgba(231, 220, 255, 0.9), transparent 25%),
+        radial-gradient(circle at bottom left, rgba(216, 246, 231, 0.85), transparent 28%),
+        linear-gradient(180deg, #fefdf7 0%, #f8fcff 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      opacity: 0.2;
+      filter: blur(4px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      top: 8%;
+      left: -50px;
+      background: var(--coral);
+    }
+
+    body::after {
+      right: -60px;
+      bottom: 10%;
+      background: var(--sky);
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panel {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(10px);
+      border-radius: 36px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before,
+    .panel::after {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.4;
+    }
+
+    .panel::before {
+      content: "★";
+      top: 20px;
+      right: 26px;
+      color: var(--orange);
+      transform: rotate(10deg);
+    }
+
+    .panel::after {
+      content: "☁";
+      left: 24px;
+      bottom: 18px;
+      color: #9bd0ff;
+    }
+
+    .screen {
+      position: relative;
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 28px 12px 20px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--sun), #fff0b6);
+      border-radius: 999px;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(255, 212, 84, 0.25);
+      margin-bottom: 22px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 4vw, 4rem);
+      line-height: 1.05;
+      color: #2d4970;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      margin: 18px auto 28px;
+      max-width: 650px;
+      line-height: 1.6;
+    }
+
+    .decor-row {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 26px;
+      flex-wrap: wrap;
+    }
+
+    .decor-chip {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(67, 98, 130, 0.09);
+      font-weight: 700;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 16px 28px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      color: #24415f;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--coral), #ffc38e);
+      box-shadow: 0 12px 26px rgba(255, 158, 143, 0.35);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--mint), #eefde9);
+      box-shadow: 0 12px 22px rgba(120, 210, 164, 0.24);
+    }
+
+    .game-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .progress-wrap {
+      flex: 1;
+      min-width: 210px;
+    }
+
+    .progress-text {
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: #edf4fb;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--sky), var(--mint), var(--sun));
+      transition: width 0.3s ease;
+    }
+
+    .score-pill {
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 12px 24px rgba(57, 87, 120, 0.1);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 252, 255, 0.95));
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      top: -80px;
+      right: -70px;
+      background: rgba(223, 243, 255, 0.8);
+    }
+
+    .emotion-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .emoji {
+      width: 82px;
+      height: 82px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      font-size: 2.4rem;
+      box-shadow: 0 12px 28px rgba(73, 104, 136, 0.13);
+      flex-shrink: 0;
+    }
+
+    .emotion-tag {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .situation {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(1.15rem, 2vw, 1.45rem);
+      line-height: 1.55;
+      margin: 12px 0 16px;
+      font-weight: 700;
+      max-width: 720px;
+    }
+
+    .question {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin-bottom: 18px;
+      color: #4c6888;
+      position: relative;
+      z-index: 1;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .option-btn {
+      width: 100%;
+      min-height: 88px;
+      padding: 16px 18px;
+      border: 3px solid transparent;
+      border-radius: var(--radius-lg);
+      background: #ffffff;
+      box-shadow: 0 10px 22px rgba(78, 108, 139, 0.08);
+      text-align: left;
+      font-size: 1rem;
+      line-height: 1.4;
+      font-weight: 700;
+      color: #38506b;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 24px rgba(78, 108, 139, 0.12);
+      border-color: rgba(155, 208, 255, 0.7);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .option-btn.correct {
+      border-color: #72c798;
+      background: #effcf4;
+    }
+
+    .option-btn.wrong {
+      border-color: #f2a19b;
+      background: #fff3f2;
+    }
+
+    .feedback {
+      display: none;
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      line-height: 1.55;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feedback.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .feedback.success {
+      background: linear-gradient(135deg, #ecfff4, #f5fff8);
+      border: 2px solid #bde9cf;
+    }
+
+    .feedback.error {
+      background: linear-gradient(135deg, #fff6f3, #fff9f8);
+      border: 2px solid #ffd0ca;
+    }
+
+    .feedback-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .next-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .summary {
+      text-align: center;
+      padding: 18px 10px;
+    }
+
+    .summary-bubble {
+      width: min(220px, 65vw);
+      aspect-ratio: 1;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--sun), var(--coral), var(--sky));
+      color: #24415f;
+      box-shadow: 0 18px 40px rgba(255, 183, 126, 0.25);
+    }
+
+    .summary-bubble strong {
+      font-size: clamp(2rem, 5vw, 3rem);
+      display: block;
+    }
+
+    .summary-text {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      max-width: 680px;
+      margin: 14px auto 26px;
+      line-height: 1.65;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        width: min(100% - 18px, 980px);
+        padding: 12px 0 24px;
+      }
+
+      .panel {
+        padding: 18px;
+        border-radius: 28px;
+      }
+
+      .options {
+        grid-template-columns: 1fr;
+      }
+
+      .emoji {
+        width: 68px;
+        height: 68px;
+        font-size: 2rem;
+      }
+
+      .game-top {
+        align-items: stretch;
+      }
+
+      .next-row {
+        justify-content: center;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel">
+      <section id="start-screen" class="screen active hero">
+        <div class="badge">💛 Mini juego de emociones</div>
+        <h1>Elige qué harías</h1>
+        <p class="subtitle">Lee la situación, escucha tu corazón y elige una respuesta amable.</p>
+        <div class="decor-row" aria-hidden="true">
+          <span class="decor-chip">⭐ Alegría</span>
+          <span class="decor-chip">🌧️ Tristeza</span>
+          <span class="decor-chip">⚡ Enfado</span>
+          <span class="decor-chip">🌈 Amor</span>
+          <span class="decor-chip">🌙 Miedo</span>
+        </div>
+        <button id="start-btn" class="btn btn-primary">Empezar</button>
+      </section>
+
+      <section id="game-screen" class="screen">
+        <div class="game-top">
+          <div class="progress-wrap">
+            <div id="progress-text" class="progress-text">Pregunta 1 de 25</div>
+            <div class="progress-bar" aria-hidden="true">
+              <div id="progress-fill" class="progress-fill"></div>
+            </div>
+          </div>
+          <div id="score-pill" class="score-pill">Puntos: 0</div>
+        </div>
+
+        <article class="card">
+          <div class="emotion-row">
+            <div id="card-emoji" class="emoji">🙂</div>
+            <div>
+              <span id="emotion-tag" class="emotion-tag">Alegría</span>
+              <h2 id="card-title">Situación</h2>
+            </div>
+          </div>
+
+          <p id="situation-text" class="situation"></p>
+          <p class="question">¿Qué podrías hacer?</p>
+
+          <div id="options" class="options"></div>
+
+          <div id="feedback" class="feedback">
+            <div id="feedback-title" class="feedback-title"></div>
+            <p id="feedback-text"></p>
+          </div>
+
+          <div class="next-row">
+            <button id="next-btn" class="btn btn-secondary hidden">Siguiente</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="end-screen" class="screen summary">
+        <div class="summary-bubble">
+          <div>
+            <span>🌟</span>
+            <strong id="final-score">0/25</strong>
+          </div>
+        </div>
+        <h2>¡Juego terminado!</h2>
+        <p class="summary-text">Todas las emociones son importantes. Lo importante es aprender a escucharlas y elegir con cariño.</p>
+        <button id="restart-btn" class="btn btn-primary">Jugar otra vez</button>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const emotionStyles = {
+      enfado: {
+        label: "Enfado",
+        emoji: "😠",
+        color: "#ffd6cc",
+        explanation: "Cuando sentimos enfado, podemos parar, respirar y decir lo que necesitamos sin hacer daño."
+      },
+      alegria: {
+        label: "Alegría",
+        emoji: "😄",
+        color: "#fff1b8",
+        explanation: "Cuando sentimos alegría, podemos disfrutarla y compartirla con respeto."
+      },
+      miedo: {
+        label: "Miedo",
+        emoji: "😨",
+        color: "#dce8ff",
+        explanation: "Cuando sentimos miedo, podemos buscar seguridad, respirar y pedir ayuda."
+      },
+      tristeza: {
+        label: "Tristeza",
+        emoji: "😢",
+        color: "#dff3ff",
+        explanation: "Cuando sentimos tristeza, ayuda hablar, pedir consuelo o descansar."
+      },
+      amor: {
+        label: "Amor",
+        emoji: "🥰",
+        color: "#ffe0ea",
+        explanation: "El amor se nota cuando cuidamos, ayudamos y tratamos con cariño."
+      }
+    };
+
+    const situations = [
+      {
+        emotion: "enfado",
+        title: "Te quitan un juguete",
+        situation: "Alguien te quita un juguete sin pedir permiso.",
+        correct: "Respiro, digo cómo me siento y pido que me lo devuelva.",
+        wrong: ["Gritar muy fuerte.", "Empujar para recuperarlo.", "Irme enfadado sin decir nada."]
+      },
+      {
+        emotion: "enfado",
+        title: "No quiere lo mismo",
+        situation: "Un amigo no quiere seguir jugando a lo que tú quieres.",
+        correct: "Intento escucharle y busco otra idea juntos.",
+        wrong: ["Mandar y no escuchar a nadie.", "Romper el juego.", "Burlarme porque no quiere."]
+      },
+      {
+        emotion: "enfado",
+        title: "Se rompe la torre",
+        situation: "Se rompe algo que estabas construyendo.",
+        correct: "Respiro, pido ayuda y lo intento otra vez.",
+        wrong: ["Tirar todas las piezas.", "Enfadarme con todos.", "Esconder lo que siento y apretarlo dentro."]
+      },
+      {
+        emotion: "enfado",
+        title: "Toca esperar",
+        situation: "Te dicen que tienes que esperar tu turno.",
+        correct: "Respiro y espero, aunque me cueste un poco.",
+        wrong: ["Colarme sin avisar.", "Quitarle el sitio a otra persona.", "No escuchar a nadie."]
+      },
+      {
+        emotion: "enfado",
+        title: "Se ríen de ti",
+        situation: "Alguien se ríe de algo que has hecho.",
+        correct: "Digo que eso no me gusta y busco ayuda si lo necesito.",
+        wrong: ["Reírme más fuerte de esa persona.", "Empujar para que pare.", "Romper algo del enfado."]
+      },
+      {
+        emotion: "tristeza",
+        title: "Te quedas fuera",
+        situation: "Un amigo no juega contigo en el recreo.",
+        correct: "Busco a otra persona, hablo con un adulto o cuento cómo me siento.",
+        wrong: ["Esconder lo que siento y quedarme solo.", "Burlarme de su juego.", "Quitarle algo a otra persona."]
+      },
+      {
+        emotion: "tristeza",
+        title: "No aparece",
+        situation: "Pierdes algo importante para ti.",
+        correct: "Pido ayuda para buscarlo y me permito estar triste.",
+        wrong: ["Romper otra cosa del disgusto.", "Salir corriendo sin decir nada.", "Enfadarme con quien esté cerca."]
+      },
+      {
+        emotion: "tristeza",
+        title: "Plan cancelado",
+        situation: "No puedes ir a un plan que te hacía ilusión.",
+        correct: "Cuento cómo me siento y busco otro momento bonito.",
+        wrong: ["Decir que nada importa nunca.", "No escuchar a nadie.", "Pagarlo con otra persona."]
+      },
+      {
+        emotion: "tristeza",
+        title: "Palabras que duelen",
+        situation: "Alguien te habla de una forma que te duele.",
+        correct: "Digo que me ha dolido y busco consuelo.",
+        wrong: ["Responder con palabras feas.", "Guardar todo sin pedir ayuda.", "Empujar para alejarme."]
+      },
+      {
+        emotion: "tristeza",
+        title: "Echas de menos",
+        situation: "Echas de menos a alguien.",
+        correct: "Hablo de esa persona, hago un dibujo o pido un abrazo.",
+        wrong: ["Fingir que no siento nada.", "Burlarme de quien me ayuda.", "Romper el dibujo antes de empezar."]
+      },
+      {
+        emotion: "miedo",
+        title: "Ruido en la noche",
+        situation: "Escuchas un ruido fuerte por la noche.",
+        correct: "Respiro, enciendo una luz suave y aviso a un adulto.",
+        wrong: ["Esconderme sin pedir ayuda.", "Salir corriendo a oscuras.", "Imaginar que no pasa nada y quedarme solo."]
+      },
+      {
+        emotion: "miedo",
+        title: "Visita al médico",
+        situation: "Tienes que ir al médico y no sabes qué pasará.",
+        correct: "Pregunto, respiro y llevo algo que me dé calma.",
+        wrong: ["Negarme a escuchar a nadie.", "Gritar a todo el mundo.", "Esconder lo que siento."]
+      },
+      {
+        emotion: "miedo",
+        title: "Tormenta con truenos",
+        situation: "Hay una tormenta con truenos.",
+        correct: "Me acerco a alguien de confianza y recuerdo que estoy a salvo.",
+        wrong: ["Salir corriendo solo.", "Taparme sin avisar a nadie.", "Asustar a otros diciendo cosas peores."]
+      },
+      {
+        emotion: "miedo",
+        title: "Hablar en clase",
+        situation: "Tienes que hablar delante de la clase.",
+        correct: "Respiro, lo intento poco a poco y pido ayuda si la necesito.",
+        wrong: ["Decir que nunca lo haré y marcharme.", "Burlarme de otros para no hacerlo yo.", "No escuchar ninguna ayuda."]
+      },
+      {
+        emotion: "miedo",
+        title: "Una sombra extraña",
+        situation: "Ves una sombra extraña.",
+        correct: "Compruebo con un adulto qué es y respiro despacito.",
+        wrong: ["Golpear la sombra.", "Quedarme con miedo sin decir nada.", "Salir corriendo sin mirar por dónde voy."]
+      },
+      {
+        emotion: "alegria",
+        title: "Te felicitan",
+        situation: "Te felicitan por haberlo intentado muy bien.",
+        correct: "Disfruto el momento y me siento orgulloso.",
+        wrong: ["Decir que nadie más lo hizo bien.", "Burlarme de quien necesita practicar.", "Quitar protagonismo a otra persona."]
+      },
+      {
+        emotion: "alegria",
+        title: "Invitación para jugar",
+        situation: "Un amigo te invita a jugar.",
+        correct: "Le doy las gracias y juego con respeto.",
+        wrong: ["Mandar todo el rato.", "No escuchar las reglas.", "Reírme si alguien se equivoca."]
+      },
+      {
+        emotion: "alegria",
+        title: "Algo nuevo sale bien",
+        situation: "Aprendes algo que antes te costaba.",
+        correct: "Celebro mi esfuerzo y sigo practicando.",
+        wrong: ["Presumir haciendo sentir mal a otros.", "Dejar de intentarlo todo por un día bueno.", "Burlarme de quien aún aprende."]
+      },
+      {
+        emotion: "alegria",
+        title: "Sorpresa bonita",
+        situation: "Recibes una sorpresa bonita.",
+        correct: "Doy las gracias y comparto mi alegría.",
+        wrong: ["Pedir todavía más sin agradecer.", "Quitarle la sorpresa a otro.", "No cuidar el regalo."]
+      },
+      {
+        emotion: "alegria",
+        title: "Tarde de parque",
+        situation: "Vas al parque a jugar.",
+        correct: "Disfruto, cuido el espacio y juego de forma segura.",
+        wrong: ["Empujar para ser el primero.", "No respetar a los demás.", "Romper algo por diversión."]
+      },
+      {
+        emotion: "amor",
+        title: "Un amigo triste",
+        situation: "Ves a un amigo triste.",
+        correct: "Me acerco con cariño y le pregunto si necesita ayuda.",
+        wrong: ["Ignorarlo y seguir jugando.", "Burlarme de cómo se siente.", "Quitarle algo para animarlo."]
+      },
+      {
+        emotion: "amor",
+        title: "Abrazo de familia",
+        situation: "Tu familia te da un abrazo.",
+        correct: "Recibo el cariño y también puedo expresar el mío.",
+        wrong: ["Apartar con enfado sin explicar nada.", "Burlarme del abrazo.", "Responder empujando."]
+      },
+      {
+        emotion: "amor",
+        title: "Recoger entre todos",
+        situation: "Alguien necesita ayuda para recoger.",
+        correct: "Ayudo si puedo y lo hago con amabilidad.",
+        wrong: ["Decir que no me importa.", "Tirar más cosas al suelo.", "Mandar sin ayudar."]
+      },
+      {
+        emotion: "amor",
+        title: "Cuidar a tu mascota",
+        situation: "Quieres mucho a tu mascota.",
+        correct: "La cuido con suavidad y respeto.",
+        wrong: ["Molestarla para jugar siempre.", "No escuchar cuando necesita calma.", "Tratarla bruscamente."]
+      },
+      {
+        emotion: "amor",
+        title: "Dibujo especial",
+        situation: "Haces un dibujo para alguien especial.",
+        correct: "Lo regalo con cariño y disfruto compartir.",
+        wrong: ["Romperlo si no sale perfecto.", "Decir que solo yo merezco regalos.", "Guardarlo enfadado sin explicar nada."]
+      }
+    ];
+
+    const startScreen = document.getElementById("start-screen");
+    const gameScreen = document.getElementById("game-screen");
+    const endScreen = document.getElementById("end-screen");
+    const startBtn = document.getElementById("start-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const progressText = document.getElementById("progress-text");
+    const progressFill = document.getElementById("progress-fill");
+    const scorePill = document.getElementById("score-pill");
+    const cardEmoji = document.getElementById("card-emoji");
+    const emotionTag = document.getElementById("emotion-tag");
+    const cardTitle = document.getElementById("card-title");
+    const situationText = document.getElementById("situation-text");
+    const optionsContainer = document.getElementById("options");
+    const feedbackBox = document.getElementById("feedback");
+    const feedbackTitle = document.getElementById("feedback-title");
+    const feedbackText = document.getElementById("feedback-text");
+    const finalScore = document.getElementById("final-score");
+
+    let shuffledSituations = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    function shuffleArray(items) {
+      const clone = [...items];
+      for (let i = clone.length - 1; i > 0; i -= 1) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        [clone[i], clone[randomIndex]] = [clone[randomIndex], clone[i]];
+      }
+      return clone;
+    }
+
+    function showScreen(screen) {
+      [startScreen, gameScreen, endScreen].forEach((section) => {
+        section.classList.remove("active");
+      });
+      screen.classList.add("active");
+    }
+
+    function updateProgress() {
+      progressText.textContent = `Pregunta ${currentIndex + 1} de ${shuffledSituations.length}`;
+      progressFill.style.width = `${(currentIndex / shuffledSituations.length) * 100}%`;
+      scorePill.textContent = `Puntos: ${score}`;
+    }
+
+    function renderQuestion() {
+      answered = false;
+      nextBtn.classList.add("hidden");
+      feedbackBox.className = "feedback";
+      feedbackTitle.textContent = "";
+      feedbackText.textContent = "";
+
+      const item = shuffledSituations[currentIndex];
+      const emotion = emotionStyles[item.emotion];
+      const answerOptions = shuffleArray([
+        { text: item.correct, isCorrect: true },
+        ...item.wrong.map((text) => ({ text, isCorrect: false }))
+      ]);
+
+      updateProgress();
+      cardEmoji.textContent = emotion.emoji;
+      cardEmoji.style.background = emotion.color;
+      emotionTag.textContent = emotion.label;
+      emotionTag.style.background = emotion.color;
+      cardTitle.textContent = item.title;
+      situationText.textContent = item.situation;
+      optionsContainer.innerHTML = "";
+
+      answerOptions.forEach((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option-btn";
+        button.textContent = option.text;
+        button.addEventListener("click", () => handleAnswer(option, button, item));
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    function handleAnswer(option, selectedButton, item) {
+      if (answered) {
+        return;
+      }
+
+      answered = true;
+      const buttons = Array.from(optionsContainer.querySelectorAll(".option-btn"));
+      buttons.forEach((button) => {
+        button.disabled = true;
+        if (button.textContent === item.correct) {
+          button.classList.add("correct");
+        }
+      });
+
+      if (option.isCorrect) {
+        score += 1;
+        feedbackBox.classList.add("show", "success");
+        feedbackTitle.textContent = "¡Muy bien! Has elegido una respuesta amable.";
+      } else {
+        selectedButton.classList.add("wrong");
+        feedbackBox.classList.add("show", "error");
+        feedbackTitle.textContent = "Casi, casi... vamos a pensarlo con calma.";
+      }
+
+      feedbackText.textContent = emotionStyles[item.emotion].explanation;
+      scorePill.textContent = `Puntos: ${score}`;
+      nextBtn.classList.remove("hidden");
+      progressFill.style.width = `${((currentIndex + 1) / shuffledSituations.length) * 100}%`;
+    }
+
+    function startGame() {
+      shuffledSituations = shuffleArray(situations);
+      currentIndex = 0;
+      score = 0;
+      renderQuestion();
+      showScreen(gameScreen);
+    }
+
+    function goToNextQuestion() {
+      currentIndex += 1;
+      if (currentIndex >= shuffledSituations.length) {
+        finalScore.textContent = `${score}/${shuffledSituations.length}`;
+        showScreen(endScreen);
+        return;
+      }
+      renderQuestion();
+    }
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+    nextBtn.addEventListener("click", goToNextQuestion);
+  </script>
+  <script>(function(){var b=document.createElement("a");b.href="https://emociones.metodo7d.es/";b.textContent="🏠 Volver al inicio";b.style.cssText="position:fixed;top:16px;left:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;background:#5D4A45;color:#ffffff;text-decoration:none;padding:8px 18px;border-radius:999px;font-size:0.85rem;font-weight:600;box-shadow:0 3px 16px rgba(0,0,0,0.25);border:none;font-family:inherit;";document.body.appendChild(b);})();</script>
+</body>
+</html>
+
+

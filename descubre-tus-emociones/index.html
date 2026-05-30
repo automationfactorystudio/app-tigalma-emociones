@@ -1,0 +1,946 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cómo está tu corazón hoy?</title>
+  <style>
+    :root {
+      --cream: #fffaf2;
+      --mint: #dff7ec;
+      --sky: #dcefff;
+      --sun: #ffd86b;
+      --coral: #ff8f7a;
+      --warm-orange: #ffb15c;
+      --soft-lilac: #d9c5ff;
+      --peach: #ffb4a3;
+      --text: #30404f;
+      --text-soft: #587084;
+      --card: rgba(255, 255, 255, 0.92);
+      --shadow: 0 18px 40px rgba(92, 124, 151, 0.18);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --joy: #f6c945;
+      --sadness: #7cb9f5;
+      --anger: #ff7d73;
+      --fear: #b79af7;
+      --love: #ffa08e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 216, 107, 0.45), transparent 28%),
+        radial-gradient(circle at 88% 15%, rgba(217, 197, 255, 0.45), transparent 24%),
+        radial-gradient(circle at 20% 85%, rgba(223, 247, 236, 0.8), transparent 32%),
+        linear-gradient(180deg, #fefcf8 0%, #f7fbff 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      filter: blur(10px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    body::before {
+      top: 12%;
+      right: -40px;
+    }
+
+    body::after {
+      bottom: 6%;
+      left: -30px;
+    }
+
+    .decor {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .shape {
+      position: absolute;
+      opacity: 0.75;
+      animation: float 9s ease-in-out infinite;
+    }
+
+    .shape.star {
+      color: #ffc857;
+      font-size: 1.4rem;
+    }
+
+    .shape.heart {
+      color: #ff9d90;
+      font-size: 1.5rem;
+    }
+
+    .shape.cloud {
+      color: #ffffff;
+      font-size: 2rem;
+      text-shadow: 0 8px 16px rgba(126, 165, 197, 0.2);
+    }
+
+    .shape.leaf {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #a7e9be, #69c78b);
+      border-radius: 0 100% 0 100%;
+      transform: rotate(35deg);
+    }
+
+    .shape.ray {
+      width: 14px;
+      height: 44px;
+      background: linear-gradient(180deg, #ffd96a, #ffb15c);
+      border-radius: 999px;
+      transform: rotate(24deg);
+    }
+
+    .shape.circle {
+      width: 18px;
+      height: 18px;
+      background: rgba(124, 185, 245, 0.5);
+      border-radius: 50%;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(6deg); }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .shell {
+      width: min(100%, 980px);
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 40px;
+      padding: 18px;
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      position: relative;
+      background: var(--card);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      min-height: 640px;
+      display: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: auto -50px -60px auto;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(223, 247, 236, 0.9) 0%, rgba(223, 247, 236, 0) 70%);
+      pointer-events: none;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #ffffff;
+      border-radius: 999px;
+      color: var(--text-soft);
+      font-weight: 700;
+      box-shadow: 0 10px 20px rgba(102, 132, 161, 0.12);
+      margin-bottom: 18px;
+    }
+
+    h1, h2 {
+      margin: 0;
+      line-height: 1.08;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 5vw, 4.2rem);
+      max-width: 12ch;
+    }
+
+    h2 {
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+    }
+
+    .subtitle,
+    .support-text,
+    .prompt {
+      color: var(--text-soft);
+      font-size: 1.08rem;
+      line-height: 1.6;
+    }
+
+    .subtitle {
+      max-width: 42ch;
+      margin: 18px 0 28px;
+    }
+
+    .button {
+      border: none;
+      border-radius: 999px;
+      padding: 16px 24px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      box-shadow: 0 12px 20px rgba(90, 118, 146, 0.18);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.02);
+    }
+
+    .button:active {
+      transform: translateY(1px);
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, var(--warm-orange), var(--coral));
+      color: #fff;
+    }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--text);
+    }
+
+    .button.next {
+      background: linear-gradient(135deg, #74d39a, #48b980);
+      color: #fff;
+      align-self: flex-end;
+    }
+
+    .heart-scene {
+      min-height: 360px;
+      position: relative;
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255, 216, 107, 0.7), transparent 24%),
+        linear-gradient(180deg, #f2fbff 0%, #ffffff 100%);
+      box-shadow: inset 0 0 0 1px rgba(173, 205, 228, 0.25);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      isolation: isolate;
+    }
+
+    .heart-glow {
+      width: min(260px, 70vw);
+      aspect-ratio: 1;
+      border-radius: 40%;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.95), transparent 24%),
+        linear-gradient(160deg, #ffd870, #ff9e8f 45%, #8ac7ff 90%);
+      position: relative;
+      transform: rotate(-8deg);
+      box-shadow: 0 25px 35px rgba(117, 151, 179, 0.25);
+      clip-path: path("M 130 235 C 90 205, 28 154, 28 97 C 28 55, 61 26, 100 26 C 122 26, 141 36, 156 54 C 171 36, 190 26, 212 26 C 251 26, 284 55, 284 97 C 284 154, 222 205, 182 235 C 169 245, 143 245, 130 235 Z");
+      z-index: 1;
+    }
+
+    .heart-glow::before,
+    .heart-glow::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .heart-glow::before {
+      width: 58px;
+      height: 58px;
+      top: 34px;
+      left: 52px;
+    }
+
+    .heart-glow::after {
+      width: 24px;
+      height: 24px;
+      top: 92px;
+      left: 124px;
+    }
+
+    .floating-badge {
+      position: absolute;
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.9);
+      font-weight: 800;
+      color: var(--text-soft);
+      box-shadow: 0 12px 24px rgba(114, 147, 176, 0.16);
+      z-index: 2;
+    }
+
+    .floating-badge.one { top: 28px; left: 18px; }
+    .floating-badge.two { bottom: 34px; right: 24px; }
+    .floating-badge.three { top: 88px; right: 12px; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .progress-text {
+      font-weight: 800;
+      color: var(--text-soft);
+    }
+
+    .progress-bar {
+      height: 14px;
+      background: #edf4fb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffd86b, #7ed6a4, #8dc6ff);
+      transition: width 0.3s ease;
+    }
+
+    .score-chip {
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #fff;
+      font-weight: 800;
+      color: var(--text-soft);
+      box-shadow: 0 10px 18px rgba(102, 132, 161, 0.12);
+    }
+
+    .game-card {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfeff 100%);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: inset 0 0 0 1px rgba(218, 231, 243, 0.8);
+    }
+
+    .scenario-visual {
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 216, 107, 0.45), transparent 32%),
+        linear-gradient(180deg, #eff8ff 0%, #ffffff 100%);
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      position: relative;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .scenario-icon {
+      font-size: clamp(4rem, 8vw, 5.4rem);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .scenario-label {
+      font-weight: 800;
+      color: var(--text-soft);
+      max-width: 12ch;
+    }
+
+    .question-box {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: #f4f8fb;
+      color: var(--text-soft);
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .scenario-text {
+      font-size: clamp(1.35rem, 2.6vw, 2rem);
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .prompt {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .answer-btn {
+      border: none;
+      border-radius: 22px;
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      box-shadow: 0 12px 20px rgba(91, 120, 147, 0.18);
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+      opacity: 0.72;
+    }
+
+    .answer-btn.selected {
+      outline: 4px solid rgba(48, 64, 79, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .answer-btn.correct {
+      box-shadow: 0 0 0 4px rgba(72, 185, 128, 0.25);
+      opacity: 1;
+    }
+
+    .answer-btn.incorrect {
+      box-shadow: 0 0 0 4px rgba(255, 125, 115, 0.26);
+    }
+
+    .answer-btn[data-emotion="Enfado"] { background: linear-gradient(135deg, #ff9a8d, var(--anger)); }
+    .answer-btn[data-emotion="Alegría"] { background: linear-gradient(135deg, #ffe27e, var(--joy)); color: #5a4311; }
+    .answer-btn[data-emotion="Miedo"] { background: linear-gradient(135deg, #d9c5ff, var(--fear)); }
+    .answer-btn[data-emotion="Tristeza"] { background: linear-gradient(135deg, #96d0ff, var(--sadness)); }
+    .answer-btn[data-emotion="Amor"] { background: linear-gradient(135deg, #ffc0b2, var(--love)); color: #6c3550; }
+
+    .feedback {
+      margin-top: 20px;
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: #f6fbff;
+      border: 1px solid #e2eef8;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.good {
+      background: #effbf4;
+      border-color: #cfeedd;
+    }
+
+    .feedback.retry {
+      background: #fff6f4;
+      border-color: #ffd9d2;
+    }
+
+    .feedback-title {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+
+    .feedback-text {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .next-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .next-row .button {
+      display: none;
+    }
+
+    .next-row .button.show {
+      display: inline-flex;
+    }
+
+    .summary-card {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      gap: 24px;
+      padding: 20px;
+    }
+
+    .score-bubble {
+      width: min(250px, 70vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.9), transparent 18%),
+        linear-gradient(160deg, #ffd86b, #ff9b83 55%, #82c9f8 100%);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 24px 36px rgba(109, 140, 168, 0.24);
+      color: #fff;
+      padding: 24px;
+    }
+
+    .score-bubble strong {
+      display: block;
+      font-size: clamp(3rem, 8vw, 4.6rem);
+      line-height: 1;
+    }
+
+    .score-bubble span {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .final-text {
+      max-width: 36ch;
+      margin: 0 auto;
+      color: var(--text-soft);
+      line-height: 1.7;
+      font-size: 1.08rem;
+    }
+
+    @media (max-width: 860px) {
+      .hero,
+      .game-card {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+      position: relative;
+        min-height: auto;
+      }
+
+      .heart-scene {
+        order: -1;
+        min-height: 300px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 14px;
+      }
+
+      .shell {
+        border-radius: 28px;
+        padding: 10px;
+      }
+
+      .panel {
+      position: relative;
+        padding: 22px 18px;
+        border-radius: 24px;
+      }
+
+      .answers {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: stretch;
+      }
+
+      .score-chip {
+        text-align: center;
+      }
+
+      .game-card {
+        padding: 18px;
+      }
+
+      .scenario-visual {
+        min-height: 180px;
+      }
+
+      .button,
+      .answer-btn {
+        min-height: 56px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decor" aria-hidden="true">
+    <span class="shape star" style="top: 9%; left: 8%;">★</span>
+    <span class="shape heart" style="top: 17%; right: 12%; animation-delay: -1s;">❤</span>
+    <span class="shape cloud" style="top: 64%; left: 7%; animation-delay: -2.5s;">☁</span>
+    <span class="shape leaf" style="top: 26%; left: 84%; animation-delay: -0.8s;"></span>
+    <span class="shape ray" style="top: 74%; right: 14%; animation-delay: -3s;"></span>
+    <span class="shape circle" style="top: 52%; left: 88%; animation-delay: -1.8s;"></span>
+    <span class="shape star" style="top: 82%; left: 20%; animation-delay: -2.2s;">★</span>
+    <span class="shape heart" style="top: 38%; left: 5%; animation-delay: -1.5s;">❤</span>
+  </div>
+
+  <main class="app">
+    <div class="shell">
+      <section class="panel active" id="start-screen">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">💛 Escucha a tu corazón</div>
+            <h1>¿Cómo está tu corazón hoy?</h1>
+            <p class="subtitle">Lee la situación, escucha a tu corazón y elige la emoción.</p>
+            <button class="button primary" id="start-button">Empezar juego</button>
+          </div>
+
+          <div class="heart-scene" aria-hidden="true">
+            <div class="floating-badge one">⭐ 40 situaciones</div>
+            <div class="floating-badge two">🌈 5 emociones</div>
+            <div class="floating-badge three">💗 Jugar y aprender</div>
+            <div class="heart-glow"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="game-screen">
+        <div class="topbar">
+          <div class="progress-wrap">
+            <div class="progress-text" id="progress-text">Pregunta 1 de 40</div>
+            <div class="progress-bar" aria-hidden="true">
+              <span id="progress-fill"></span>
+            </div>
+          </div>
+          <div class="score-chip" id="score-chip">Aciertos: 0</div>
+        </div>
+
+        <div class="game-card">
+          <div class="scenario-visual">
+            <div>
+              <div class="scenario-icon" id="scenario-icon">🎈</div>
+              <div class="scenario-label" id="scenario-label">Situación del día</div>
+            </div>
+          </div>
+
+          <div class="question-box">
+            <span class="pill">Escucha lo que sientes</span>
+            <p class="scenario-text" id="scenario-text"></p>
+            <p class="prompt">¿Qué emoción sentirías?</p>
+
+            <div class="answers" id="answers"></div>
+
+            <div class="feedback" id="feedback" aria-live="polite">
+              <h3 class="feedback-title" id="feedback-title"></h3>
+              <p class="feedback-text" id="feedback-text"></p>
+            </div>
+
+            <div class="next-row">
+              <button class="button next" id="next-button">Siguiente</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="end-screen">
+        <div class="summary-card">
+          <div class="eyebrow">✨ Has llegado al final</div>
+          <h2>Tu corazón ha pensado un montón</h2>
+          <div class="score-bubble">
+            <div>
+              <strong id="final-score">0/40</strong>
+              <span>Puntuación final</span>
+            </div>
+          </div>
+          <p class="final-text">Todas las emociones son importantes. Escuchar tu corazón te ayuda a entenderte mejor.</p>
+          <button class="button primary" id="restart-button">Jugar otra vez</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const emotionInfo = {
+      "Enfado": {
+        explanation: "El enfado aparece cuando sentimos que algo no es justo o que han cruzado un límite.",
+        icon: "😠",
+        label: "Un momento que molesta"
+      },
+      "Alegría": {
+        explanation: "La alegría aparece cuando algo nos gusta, nos ilusiona o nos hace sonreír.",
+        icon: "😊",
+        label: "Un momento que brilla"
+      },
+      "Miedo": {
+        explanation: "El miedo aparece cuando algo nos parece peligroso o no sabemos qué va a pasar.",
+        icon: "😨",
+        label: "Un momento que impresiona"
+      },
+      "Tristeza": {
+        explanation: "La tristeza aparece cuando algo nos duele, echamos de menos o necesitamos consuelo.",
+        icon: "😢",
+        label: "Un momento que pesa"
+      },
+      "Amor": {
+        explanation: "El amor aparece cuando cuidamos, abrazamos, ayudamos o sentimos cariño.",
+        icon: "🥰",
+        label: "Un momento que abraza"
+      }
+    };
+
+    // Lista de situaciones preparada para poder cambiar iconos por imágenes más adelante.
+    const scenarios = [
+      { emotion: "Alegría", icon: "🍲", text: "Tu familia te prepara tu comida favorita." },
+      { emotion: "Alegría", icon: "🛝", text: "Un amigo te invita a jugar en el recreo." },
+      { emotion: "Alegría", icon: "👏", text: "Te felicitan por haberlo intentado muy bien." },
+      { emotion: "Alegría", icon: "🧸", text: "Encuentras un juguete que pensabas que habías perdido." },
+      { emotion: "Alegría", icon: "🌳", text: "Vas al parque y puedes subirte a los columpios." },
+      { emotion: "Alegría", icon: "🌟", text: "Aprendes a hacer algo que antes te costaba." },
+      { emotion: "Alegría", icon: "🎁", text: "Recibes una sorpresa bonita de alguien que quieres." },
+      { emotion: "Alegría", icon: "🎶", text: "Cantas y bailas tu canción favorita." },
+
+      { emotion: "Tristeza", icon: "🖍️", text: "Se rompe un dibujo que habías hecho con mucho cariño." },
+      { emotion: "Tristeza", icon: "🧍", text: "Un amigo no quiere jugar contigo ese día." },
+      { emotion: "Tristeza", icon: "🔎", text: "Pierdes algo que era importante para ti." },
+      { emotion: "Tristeza", icon: "👋", text: "Tienes que despedirte de alguien a quien quieres." },
+      { emotion: "Tristeza", icon: "📅", text: "No puedes ir a un plan que te hacía ilusión." },
+      { emotion: "Tristeza", icon: "🐾", text: "Tu mascota está malita." },
+      { emotion: "Tristeza", icon: "💬", text: "Alguien te habla de una forma que te duele." },
+      { emotion: "Tristeza", icon: "🪑", text: "Ves que otro niño está solo y nadie juega con él." },
+
+      { emotion: "Enfado", icon: "🪀", text: "Alguien te quita un juguete sin pedir permiso." },
+      { emotion: "Enfado", icon: "⏹️", text: "No te dejan terminar un juego que te gustaba mucho." },
+      { emotion: "Enfado", icon: "💥", text: "Un compañero rompe algo tuyo sin cuidado." },
+      { emotion: "Enfado", icon: "🗣️", text: "Sientes que no te escuchan cuando quieres hablar." },
+      { emotion: "Enfado", icon: "⚠️", text: "Te culpan de algo que no has hecho." },
+      { emotion: "Enfado", icon: "🚶", text: "Alguien se cuela cuando estabas esperando tu turno." },
+      { emotion: "Enfado", icon: "🔄", text: "Te cambian un plan sin avisarte." },
+      { emotion: "Enfado", icon: "✋", text: "Te dicen “no” cuando querías hacer algo." },
+
+      { emotion: "Miedo", icon: "🌙", text: "Escuchas un ruido fuerte por la noche." },
+      { emotion: "Miedo", icon: "🚪", text: "Tienes que entrar en una habitación oscura." },
+      { emotion: "Miedo", icon: "🩺", text: "Vas al médico y no sabes qué va a pasar." },
+      { emotion: "Miedo", icon: "🏬", text: "Te pierdes por un momento en un sitio grande." },
+      { emotion: "Miedo", icon: "👤", text: "Ves una sombra extraña en la pared." },
+      { emotion: "Miedo", icon: "🎤", text: "Tienes que hablar delante de muchas personas." },
+      { emotion: "Miedo", icon: "⛈️", text: "Hay una tormenta con truenos muy fuertes." },
+      { emotion: "Miedo", icon: "🐕", text: "Te acercas a un animal que no conoces." },
+
+      { emotion: "Amor", icon: "🤗", text: "Das un abrazo a alguien que quieres mucho." },
+      { emotion: "Amor", icon: "🫶", text: "Cuidas de un amigo que está triste." },
+      { emotion: "Amor", icon: "🍎", text: "Compartes tu merienda con alguien." },
+      { emotion: "Amor", icon: "🏡", text: "Tu familia te dice que te quiere." },
+      { emotion: "Amor", icon: "🙌", text: "Ayudas a alguien sin que te lo pida." },
+      { emotion: "Amor", icon: "🎨", text: "Haces un dibujo para regalarlo." },
+      { emotion: "Amor", icon: "🐱", text: "Acaricias a tu mascota con cariño." },
+      { emotion: "Amor", icon: "🪴", text: "Te sientas al lado de alguien para que no esté solo." }
+    ];
+
+    const answerOrder = ["Enfado", "Alegría", "Miedo", "Tristeza", "Amor"];
+
+    const startScreen = document.getElementById("start-screen");
+    const gameScreen = document.getElementById("game-screen");
+    const endScreen = document.getElementById("end-screen");
+    const startButton = document.getElementById("start-button");
+    const nextButton = document.getElementById("next-button");
+    const restartButton = document.getElementById("restart-button");
+    const progressText = document.getElementById("progress-text");
+    const progressFill = document.getElementById("progress-fill");
+    const scoreChip = document.getElementById("score-chip");
+    const scenarioIcon = document.getElementById("scenario-icon");
+    const scenarioLabel = document.getElementById("scenario-label");
+    const scenarioText = document.getElementById("scenario-text");
+    const answers = document.getElementById("answers");
+    const feedback = document.getElementById("feedback");
+    const feedbackTitle = document.getElementById("feedback-title");
+    const feedbackText = document.getElementById("feedback-text");
+    const finalScore = document.getElementById("final-score");
+
+    let deck = [];
+    let currentIndex = 0;
+    let score = 0;
+    let hasAnswered = false;
+
+    function shuffle(array) {
+      const copy = [...array];
+
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+
+      return copy;
+    }
+
+    function showScreen(screen) {
+      [startScreen, gameScreen, endScreen].forEach((panel) => {
+        panel.classList.toggle("active", panel === screen);
+      });
+    }
+
+    function startGame() {
+      deck = shuffle(scenarios);
+      currentIndex = 0;
+      score = 0;
+      hasAnswered = false;
+      scoreChip.textContent = "Aciertos: 0";
+      showScreen(gameScreen);
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const current = deck[currentIndex];
+      const step = currentIndex + 1;
+      const progress = (currentIndex / deck.length) * 100;
+
+      hasAnswered = false;
+      progressText.textContent = `Pregunta ${step} de ${deck.length}`;
+      progressFill.style.width = `${progress}%`;
+      scenarioIcon.textContent = current.icon;
+      scenarioLabel.textContent = emotionInfo[current.emotion].label;
+      scenarioText.textContent = current.text;
+      feedback.className = "feedback";
+      feedbackTitle.textContent = "";
+      feedbackText.textContent = "";
+      nextButton.classList.remove("show");
+
+      answers.innerHTML = "";
+
+      answerOrder.forEach((emotion) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "answer-btn";
+        button.dataset.emotion = emotion;
+        button.textContent = emotion;
+        button.addEventListener("click", () => handleAnswer(emotion, button));
+        answers.appendChild(button);
+      });
+    }
+
+    function handleAnswer(selectedEmotion, button) {
+      if (hasAnswered) {
+        return;
+      }
+
+      hasAnswered = true;
+      const current = deck[currentIndex];
+      const isCorrect = selectedEmotion === current.emotion;
+      const correctEmotion = emotionInfo[current.emotion];
+      const buttons = answers.querySelectorAll(".answer-btn");
+
+      if (isCorrect) {
+        score += 1;
+        scoreChip.textContent = `Aciertos: ${score}`;
+      }
+
+      buttons.forEach((answerButton) => {
+        const emotion = answerButton.dataset.emotion;
+        answerButton.disabled = true;
+
+        if (emotion === selectedEmotion) {
+          answerButton.classList.add("selected");
+        }
+
+        if (emotion === current.emotion) {
+          answerButton.classList.add("correct");
+        }
+
+        if (emotion === selectedEmotion && !isCorrect) {
+          answerButton.classList.add("incorrect");
+        }
+      });
+
+      feedback.classList.add("show", isCorrect ? "good" : "retry");
+      feedbackTitle.textContent = isCorrect
+        ? "¡Muy bien! Has escuchado a tu corazón."
+        : "Casi, casi… vamos a mirarlo con calma.";
+      feedbackText.textContent = correctEmotion.explanation;
+      nextButton.classList.add("show");
+      button.blur();
+    }
+
+    function goNext() {
+      currentIndex += 1;
+
+      if (currentIndex >= deck.length) {
+        finishGame();
+        return;
+      }
+
+      renderQuestion();
+    }
+
+    function finishGame() {
+      progressFill.style.width = "100%";
+      finalScore.textContent = `${score}/${deck.length}`;
+      showScreen(endScreen);
+    }
+
+    startButton.addEventListener("click", startGame);
+    nextButton.addEventListener("click", goNext);
+    restartButton.addEventListener("click", startGame);
+  </script>
+  <script>(function(){var b=document.createElement("a");b.href="https://emociones.metodo7d.es/";b.textContent="🏠 Volver al inicio";b.style.cssText="position:fixed;top:16px;left:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;background:#5D4A45;color:#ffffff;text-decoration:none;padding:8px 18px;border-radius:999px;font-size:0.85rem;font-weight:600;box-shadow:0 3px 16px rgba(0,0,0,0.25);border:none;font-family:inherit;";document.body.appendChild(b);})();</script>
+</body>
+</html>
+
+

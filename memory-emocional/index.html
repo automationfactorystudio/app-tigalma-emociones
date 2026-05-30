@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory de emociones</title>
+  <style>
+    :root {
+      --cream: #fffaf2;
+      --mint: #bfeecf;
+      --sky: #b7e4ff;
+      --coral: #ff937e;
+      --warm-yellow: #ffe69a;
+      --warm-orange: #ffc47c;
+      --soft-lilac: #d9ccff;
+      --leaf: #8cd0a0;
+      --ink: #2f3b55;
+      --ink-soft: #496182;
+      --card-shadow: 0 16px 32px rgba(47, 59, 85, 0.14);
+      --soft-shadow: 0 10px 22px rgba(47, 59, 85, 0.1);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --match-glow: 0 0 0 3px rgba(255, 230, 154, 0.9), 0 0 22px rgba(255, 196, 124, 0.52);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(217, 204, 255, 0.45), transparent 22%),
+        radial-gradient(circle at 88% 16%, rgba(183, 228, 255, 0.45), transparent 20%),
+        radial-gradient(circle at 18% 86%, rgba(191, 238, 207, 0.45), transparent 24%),
+        linear-gradient(160deg, #fffdf8 0%, var(--cream) 60%, #f4fbff 100%);
+      display: flex;
+      justify-content: center;
+      padding: 18px;
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: min(980px, 100%);
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.75);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      animation: riseIn 500ms ease;
+    }
+
+    .app::before,
+    .app::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .app::before {
+      width: 180px;
+      height: 180px;
+      top: -60px;
+      right: -50px;
+      background: radial-gradient(circle, rgba(255, 230, 154, 0.55), transparent 70%);
+    }
+
+    .app::after {
+      width: 220px;
+      height: 220px;
+      bottom: -100px;
+      left: -80px;
+      background: radial-gradient(circle, rgba(191, 238, 207, 0.55), transparent 70%);
+    }
+
+    .decor {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.55;
+      z-index: -1;
+      animation: floaty 6s ease-in-out infinite;
+    }
+
+    .decor.cloud {
+      top: 34px;
+      left: 24px;
+      width: 82px;
+      height: 30px;
+      border-radius: 40px;
+      background: rgba(183, 228, 255, 0.6);
+      box-shadow: 26px -8px 0 6px rgba(183, 228, 255, 0.6), 52px 0 0 0 rgba(183, 228, 255, 0.6);
+    }
+
+    .decor.star,
+    .decor.heart,
+    .decor.leaf,
+    .decor.dot {
+      display: block;
+      font-size: 30px;
+      filter: drop-shadow(0 4px 10px rgba(47, 59, 85, 0.08));
+    }
+
+    .decor.star {
+      top: 84px;
+      right: 42px;
+      color: #ffc95c;
+      animation-delay: 0.8s;
+    }
+
+    .decor.heart {
+      bottom: 28px;
+      right: 34px;
+      color: var(--coral);
+      animation-delay: 1.4s;
+    }
+
+    .decor.leaf {
+      bottom: 44px;
+      left: 54px;
+      color: var(--leaf);
+      animation-delay: 2s;
+    }
+
+    .decor.dot {
+      top: 26px;
+      left: 138px;
+      color: var(--soft-lilac);
+      animation-delay: 2.6s;
+    }
+
+    .screen {
+      display: none;
+      padding: 28px 20px 32px;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 340ms ease;
+    }
+
+    .hero,
+    .final {
+      text-align: center;
+    }
+
+    .hero {
+      position: relative;
+      padding: 34px 10px 20px;
+    }
+
+    .hero-shell {
+      position: relative;
+      overflow: hidden;
+      padding: 28px 18px 26px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 230, 154, 0.75), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(191, 238, 207, 0.7), transparent 30%),
+        linear-gradient(145deg, #ffffff 0%, #fffaf0 42%, #eef9ff 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.95), var(--card-shadow);
+    }
+
+    .hero-shell::before,
+    .hero-shell::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      pointer-events: none;
+    }
+
+    .hero-shell::before {
+      width: 180px;
+      height: 180px;
+      top: -90px;
+      left: -70px;
+    }
+
+    .hero-shell::after {
+      width: 140px;
+      height: 140px;
+      bottom: -70px;
+      right: -40px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 252, 247, 0.92);
+      border: 1px solid rgba(165, 131, 109, 0.16);
+      box-shadow: var(--soft-shadow);
+      color: #6d5447;
+      font-size: 0.96rem;
+      font-weight: 800;
+      line-height: 1;
+      text-decoration: none;
+      transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .home-link:hover,
+    .home-link:focus-visible {
+      transform: translateY(-1px);
+      background: #fffefb;
+      box-shadow: 0 12px 24px rgba(109, 84, 71, 0.12);
+      outline: none;
+    }
+
+    .home-link-icon {
+      width: 20px;
+      height: 20px;
+      color: #a8806c;
+      flex: 0 0 auto;
+    }
+
+    .hero-home-link {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 2;
+    }
+
+    .screen-home-link {
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255, 230, 154, 0.68), rgba(183, 228, 255, 0.62));
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #2f4c79;
+    }
+
+    .hero h1,
+    .final-title {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.15rem);
+      color: #2d4473;
+      letter-spacing: 0.4px;
+      text-wrap: balance;
+    }
+
+    .hero p,
+    .final-text,
+    .final-edu {
+      margin: 14px auto 0;
+      max-width: 720px;
+      font-size: clamp(1rem, 2.6vw, 1.18rem);
+      line-height: 1.55;
+      color: var(--ink-soft);
+      text-wrap: pretty;
+    }
+
+    .hero-scene {
+      margin: 34px auto 0;
+      max-width: 620px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(92px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .scene-card {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 14px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: var(--soft-shadow);
+      min-height: 250px;
+    }
+
+    .scene-card-image {
+      display: block;
+      width: min(100%, 170px);
+      height: 210px;
+      object-fit: contain;
+      object-position: center;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .scene-card:nth-child(2) {
+      transform: translateY(-6px);
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 230, 0.96));
+    }
+
+    .scene-card .animal {
+      width: 68px;
+      height: 72px;
+      transform: translateY(2px) scale(0.92);
+      transform-origin: center bottom;
+    }
+
+    .scene-card .animal[data-animal="lion"] {
+      transform: translateY(4px) scale(0.88);
+    }
+
+    .scene-card .animal-symbol {
+      top: 2px;
+      font-size: 0.95rem;
+    }
+
+    .scene-card .animal-head {
+      width: 58px;
+      height: 50px;
+    }
+
+    .scene-card .animal-ear.left {
+      left: 8px;
+    }
+
+    .scene-card .animal-ear.right {
+      right: 8px;
+    }
+
+    .scene-card .animal[data-animal="bunny"] .animal-ear {
+      height: 30px;
+      top: 4px;
+    }
+
+    .scene-card .animal[data-animal="lion"]::before {
+      width: 66px;
+      height: 58px;
+      bottom: 0;
+    }
+
+    .scene-card .animal-eyes {
+      top: 35px;
+      gap: 12px;
+    }
+
+    .scene-card .animal-eye {
+      width: 7px;
+      height: 8px;
+    }
+
+    .scene-card .animal-nose {
+      top: 43px;
+      width: 10px;
+      height: 8px;
+    }
+
+    .scene-card .animal-mouth {
+      top: 51px;
+      width: 18px;
+      height: 10px;
+    }
+
+    .scene-card .animal[data-mood="sad"] .animal-mouth {
+      top: 54px;
+    }
+
+    .scene-card .animal[data-mood="angry"] .animal-mouth {
+      top: 53px;
+    }
+
+    .scene-card .animal[data-mood="scared"] .animal-mouth {
+      top: 48px;
+      width: 12px;
+      height: 14px;
+    }
+
+    .scene-card .animal-blush {
+      top: 46px;
+      width: 42px;
+    }
+
+    .big-btn {
+      margin-top: 24px;
+      min-width: 210px;
+      min-height: 54px;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #24345f;
+      background: linear-gradient(120deg, var(--warm-yellow), var(--warm-orange));
+      box-shadow: var(--soft-shadow);
+      cursor: pointer;
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+
+    .big-btn:hover,
+    .big-btn:focus-visible {
+      transform: translateY(-2px) scale(1.01);
+      filter: brightness(1.02);
+      outline: none;
+    }
+
+    .hero-badges {
+      margin-top: 26px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: var(--soft-shadow);
+      font-weight: 700;
+      color: #3e5b82;
+    }
+
+    .game-header {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: start;
+    }
+
+    .counters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .counter {
+      background: linear-gradient(135deg, rgba(255, 230, 154, 0.35), rgba(183, 228, 255, 0.3));
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 800;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.82), var(--soft-shadow);
+    }
+
+    .feedback {
+      margin: 4px 0 16px;
+      min-height: 78px;
+      padding: 14px 16px;
+      border: 2px dashed rgba(73, 97, 130, 0.22);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(130deg, rgba(191, 238, 207, 0.28), rgba(217, 204, 255, 0.26));
+      font-size: 0.99rem;
+      line-height: 1.45;
+      color: #385173;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 12px;
+      max-width: 860px;
+      margin: 0 auto;
+      perspective: 900px;
+    }
+
+    .card {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      min-height: 148px;
+      padding: 0;
+      border: 0;
+      border-radius: var(--radius-lg);
+      background: transparent;
+      cursor: pointer;
+      transform-style: preserve-3d;
+    }
+
+    .card-inner {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      transform-style: preserve-3d;
+      transition: transform 460ms cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: var(--card-shadow);
+    }
+
+    .card.flipped .card-inner,
+    .card.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      text-align: center;
+      backface-visibility: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .card-back {
+      background: linear-gradient(155deg, var(--soft-lilac), var(--sky));
+      color: #2f4575;
+      overflow: hidden;
+    }
+
+    .card-back::before,
+    .card-back::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .card-back::before {
+      width: 86px;
+      height: 86px;
+      top: -20px;
+      right: -14px;
+    }
+
+    .card-back::after {
+      width: 68px;
+      height: 68px;
+      bottom: -16px;
+      left: -10px;
+    }
+
+    .back-symbol {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      font-size: 1.9rem;
+      font-weight: 800;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
+      background: linear-gradient(150deg, #ffffff, #f7fcff);
+      color: var(--ink);
+    }
+
+    .card-front[data-emotion="alegria"] {
+      background: linear-gradient(160deg, #fffdfa, #fff1c4);
+    }
+
+    .card-front[data-emotion="tristeza"] {
+      background: linear-gradient(160deg, #f7fdff, #dff0ff);
+    }
+
+    .card-front[data-emotion="enfado"] {
+      background: linear-gradient(160deg, #fff7f4, #ffd7cc);
+    }
+
+    .card-front[data-emotion="miedo"] {
+      background: linear-gradient(160deg, #f9f7ff, #e3dcff);
+    }
+
+    .card-front[data-emotion="amor"] {
+      background: linear-gradient(160deg, #fff8fa, #ffd8df);
+    }
+
+    .emotion-image-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      padding: 6px 6px 4px;
+      gap: 4px;
+    }
+
+    .emotion-image {
+      display: block;
+      width: 100%;
+      max-width: none;
+      flex: 1 1 auto;
+      min-height: 0;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 14px;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .emotion-name {
+      width: 100%;
+      text-align: center;
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      font-weight: 900;
+      line-height: 1.1;
+      color: #2e4a81;
+    }
+
+    .animal-card {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .animal {
+      --animal-main: #f3c891;
+      --animal-inner: #fbe5c9;
+      --animal-accent: #ffb56b;
+      --animal-eye: #2f3b55;
+      position: relative;
+      width: min(84px, 100%);
+      height: 86px;
+    }
+
+    .animal[data-animal="bunny"] {
+      --animal-main: #fff2dd;
+      --animal-inner: #ffd8e2;
+      --animal-accent: #ffd078;
+    }
+
+    .animal[data-animal="bear"] {
+      --animal-main: #e7c091;
+      --animal-inner: #f7e2c3;
+      --animal-accent: #ffb86b;
+    }
+
+    .animal[data-animal="fox"] {
+      --animal-main: #ffbe83;
+      --animal-inner: #ffe2bf;
+      --animal-accent: #ff946d;
+    }
+
+    .animal[data-animal="lion"] {
+      --animal-main: #ffd28b;
+      --animal-inner: #fff0cb;
+      --animal-accent: #ff9e63;
+    }
+
+    .animal[data-animal="cat"] {
+      --animal-main: #d6cbff;
+      --animal-inner: #efeaff;
+      --animal-accent: #9ca7ff;
+    }
+
+    .animal-head {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 74px;
+      height: 64px;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 46% 46%;
+      background: var(--animal-main);
+      box-shadow: inset 0 -6px 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .animal-ear {
+      position: absolute;
+      top: 4px;
+      width: 24px;
+      height: 28px;
+      background: var(--animal-main);
+      z-index: -1;
+    }
+
+    .animal-ear::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: inherit;
+      background: var(--animal-inner);
+    }
+
+    .animal-ear.left {
+      left: 10px;
+    }
+
+    .animal-ear.right {
+      right: 10px;
+    }
+
+    .animal[data-animal="bear"] .animal-ear,
+    .animal[data-animal="fox"] .animal-ear {
+      border-radius: 50%;
+    }
+
+    .animal[data-animal="bunny"] .animal-ear {
+      height: 40px;
+      border-radius: 50% 50% 46% 46%;
+      top: -6px;
+    }
+
+    .animal[data-animal="cat"] .animal-ear {
+      width: 26px;
+      height: 26px;
+      top: 2px;
+      border-radius: 6px;
+      transform: rotate(45deg);
+    }
+
+    .animal[data-animal="cat"] .animal-ear::after {
+      inset: 6px;
+      border-radius: 4px;
+    }
+
+    .animal[data-animal="fox"] .animal-ear {
+      width: 26px;
+      height: 26px;
+      top: 1px;
+      border-radius: 8px;
+      transform: rotate(45deg);
+    }
+
+    .animal[data-animal="lion"]::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -4px;
+      width: 86px;
+      height: 76px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, #f7a15a 0 34px, #d88443 35px 100%);
+      z-index: -2;
+      box-shadow: 0 6px 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .animal[data-animal="lion"] .animal-ear {
+      width: 24px;
+      height: 24px;
+      top: 8px;
+      border-radius: 50%;
+    }
+
+    .animal[data-animal="lion"] .animal-ear.left {
+      left: 8px;
+    }
+
+    .animal[data-animal="lion"] .animal-ear.right {
+      right: 8px;
+    }
+
+    .animal-eyes,
+    .animal-mouth,
+    .animal-nose,
+    .animal-blush,
+    .animal-symbol {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .animal-eyes {
+      top: 42px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .animal-eye {
+      width: 8px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--animal-eye);
+    }
+
+    .animal[data-mood="happy"] .animal-eye {
+      height: 8px;
+      border-radius: 0 0 999px 999px;
+      border-bottom: 3px solid var(--animal-eye);
+      background: transparent;
+    }
+
+    .animal[data-mood="sad"] .animal-eye.left {
+      transform: rotate(18deg);
+    }
+
+    .animal[data-mood="sad"] .animal-eye.right {
+      transform: rotate(-18deg);
+    }
+
+    .animal[data-mood="angry"] .animal-eye.left,
+    .animal[data-mood="angry"] .animal-eye.right {
+      position: relative;
+    }
+
+    .animal[data-mood="angry"] .animal-eye.left::before,
+    .animal[data-mood="angry"] .animal-eye.right::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      width: 12px;
+      height: 3px;
+      background: var(--animal-eye);
+      border-radius: 999px;
+    }
+
+    .animal[data-mood="angry"] .animal-eye.left::before {
+      left: -4px;
+      transform: rotate(-24deg);
+    }
+
+    .animal[data-mood="angry"] .animal-eye.right::before {
+      right: -4px;
+      transform: rotate(24deg);
+    }
+
+    .animal[data-mood="scared"] .animal-eye {
+      width: 10px;
+      height: 12px;
+    }
+
+    .animal-nose {
+      top: 51px;
+      width: 12px;
+      height: 10px;
+      border-radius: 50% 50% 60% 60%;
+      background: #7b5a53;
+    }
+
+    .animal-mouth {
+      top: 61px;
+      width: 22px;
+      height: 12px;
+      border-bottom: 3px solid #7b5a53;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .animal[data-mood="happy"] .animal-mouth,
+    .animal[data-mood="love"] .animal-mouth {
+      border-bottom-width: 4px;
+      height: 14px;
+    }
+
+    .animal[data-mood="sad"] .animal-mouth {
+      top: 66px;
+      border-bottom: 0;
+      border-top: 3px solid #7b5a53;
+      border-radius: 18px 18px 0 0;
+    }
+
+    .animal[data-mood="angry"] .animal-mouth {
+      top: 64px;
+      width: 18px;
+      height: 0;
+      border-bottom: 3px solid #7b5a53;
+      border-radius: 0;
+    }
+
+    .animal[data-mood="scared"] .animal-mouth {
+      top: 60px;
+      width: 14px;
+      height: 18px;
+      border: 3px solid #7b5a53;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .animal-blush {
+      top: 54px;
+      width: 52px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .animal-blush::before,
+    .animal-blush::after {
+      content: "";
+      width: 11px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 145, 126, 0.38);
+    }
+
+    .animal[data-mood="angry"] .animal-blush::before,
+    .animal[data-mood="angry"] .animal-blush::after {
+      background: rgba(255, 126, 126, 0.42);
+    }
+
+    .animal-symbol {
+      top: -4px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #f87a65;
+    }
+
+    .animal[data-mood="happy"] .animal-symbol {
+      color: #ffbf45;
+    }
+
+    .animal[data-mood="sad"] .animal-symbol {
+      color: #61aef0;
+    }
+
+    .animal[data-mood="angry"] .animal-symbol {
+      color: #ff7d55;
+    }
+
+    .animal[data-mood="scared"] .animal-symbol {
+      color: #8f8cff;
+    }
+
+    .animal-label {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #35507c;
+    }
+
+    .card.matched .card-inner {
+      box-shadow: var(--match-glow), var(--card-shadow);
+    }
+
+    .card:focus-visible {
+      outline: 3px solid #ffb768;
+      outline-offset: 2px;
+    }
+
+    .final {
+      padding-top: 22px;
+    }
+
+    .final-stats {
+      margin: 16px auto;
+      width: fit-content;
+      min-width: 220px;
+      padding: 12px 18px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(140deg, rgba(255, 230, 154, 0.32), rgba(191, 238, 207, 0.35));
+      box-shadow: var(--soft-shadow);
+      font-weight: 800;
+      color: #2e466f;
+    }
+
+    @media (min-width: 800px) {
+      .screen {
+        padding: 30px 30px 34px;
+      }
+
+      .board {
+        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        gap: 14px;
+      }
+
+      .game-header {
+        grid-template-columns: auto 1fr;
+      }
+
+      .feedback {
+        margin-top: 0;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .home-link {
+        gap: 8px;
+        padding: 9px 12px;
+        font-size: 0.9rem;
+      }
+
+      .hero-home-link {
+        top: 14px;
+        left: 14px;
+      }
+
+      .hero-shell {
+        padding: 22px 14px 22px;
+      }
+
+      .hero-scene {
+        gap: 10px;
+      }
+
+      .scene-card {
+        min-height: 168px;
+        padding: 16px 10px 14px;
+      }
+
+      .hero-badges {
+        gap: 8px;
+      }
+
+      .badge {
+        font-size: 0.92rem;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes floaty {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="decor cloud" aria-hidden="true"></span>
+    <span class="decor star" aria-hidden="true">★</span>
+    <span class="decor heart" aria-hidden="true">♥</span>
+    <span class="decor leaf" aria-hidden="true">❋</span>
+    <span class="decor dot" aria-hidden="true">●</span>
+
+    <section id="startScreen" class="screen active" aria-label="Pantalla de inicio">
+      <div class="hero">
+        <div class="hero-shell">
+          <a class="home-link hero-home-link" href="https://emociones.metodo7d.es/" aria-label="Volver al inicio">
+            <svg class="home-link-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3.75 10.5 12 3.75l8.25 6.75" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              <path d="M6.75 9.75v9a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-9" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              <path d="M10.5 20.25v-5.25a1.5 1.5 0 0 1 1.5-1.5h0a1.5 1.5 0 0 1 1.5 1.5v5.25" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <span>Volver al inicio</span>
+          </a>
+          <div class="eyebrow">Juego para descubrir emociones</div>
+          <h1>Memory de emociones</h1>
+          <p>Encuentra las parejas y descubre qué siente cada corazón.</p>
+          <div class="hero-scene" aria-hidden="true">
+            <div class="scene-card">
+              <img class="scene-card-image" src="images/juega-descubre.png" alt="Juega y descubre" draggable="false" />
+            </div>
+            <div class="scene-card">
+              <img class="scene-card-image" src="images/aprende-jugando.png" alt="Aprende jugando" draggable="false" />
+            </div>
+            <div class="scene-card">
+              <img class="scene-card-image" src="images/busca-parejas.png" alt="Busca parejas" draggable="false" />
+            </div>
+          </div>
+          <button id="startBtn" class="big-btn" type="button">Empezar juego</button>
+          <div class="hero-badges" aria-hidden="true">
+            <span class="badge">Alegría</span>
+            <span class="badge">Tristeza</span>
+            <span class="badge">Enfado</span>
+            <span class="badge">Miedo</span>
+            <span class="badge">Amor</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen" aria-label="Pantalla del juego">
+      <a class="home-link screen-home-link" href="https://emociones.metodo7d.es/" aria-label="Volver al inicio">
+        <svg class="home-link-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3.75 10.5 12 3.75l8.25 6.75" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          <path d="M6.75 9.75v9a1.5 1.5 0 0 0 1.5 1.5h7.5a1.5 1.5 0 0 0 1.5-1.5v-9" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          <path d="M10.5 20.25v-5.25a1.5 1.5 0 0 1 1.5-1.5h0a1.5 1.5 0 0 1 1.5 1.5v5.25" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span>Volver al inicio</span>
+      </a>
+      <div class="game-header">
+        <div class="counters" aria-live="polite">
+          <div class="counter">Intentos: <span id="attempts">0</span></div>
+          <div class="counter">Parejas: <span id="pairs">0</span>/5</div>
+        </div>
+        <div id="feedback" class="feedback" aria-live="polite">
+          Gira dos cartas para empezar. Busca las parejas de emoción + animalito.
+        </div>
+      </div>
+      <div id="board" class="board" aria-label="Tablero de cartas"></div>
+    </section>
+
+    <section id="finalScreen" class="screen" aria-label="Pantalla final">
+      <div class="final">
+        <h2 class="final-title">¡Lo has conseguido!</h2>
+        <p class="final-text">Has terminado el Memory de emociones.</p>
+        <div class="final-stats">Intentos: <span id="finalAttempts">0</span></div>
+        <p class="final-edu">
+          Todas las emociones son importantes. Aprender a reconocerlas nos ayuda a cuidar nuestro corazón.
+        </p>
+        <button id="restartBtn" class="big-btn" type="button">Jugar otra vez</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Esta estructura facilita cambiar emociones o sustituir la ilustracion por imagenes mas adelante.
+    const emotions = [
+      {
+        key: "alegria",
+        name: "Alegría",
+        image: "images/alegría.png",
+        animal: "bunny",
+        mood: "happy",
+        accent: "✦",
+        label: "Conejito alegre",
+        feedback: "¡Alegría! La sentimos cuando algo nos hace sonreír o nos ilusiona."
+      },
+      {
+        key: "tristeza",
+        name: "Tristeza",
+        image: "images/tristeza.png",
+        animal: "bear",
+        mood: "sad",
+        accent: "☁",
+        label: "Osito triste",
+        feedback: "Tristeza. A veces el corazón necesita consuelo y descanso."
+      },
+      {
+        key: "enfado",
+        name: "Enfado",
+        image: "images/enfado.png",
+        animal: "lion",
+        mood: "angry",
+        accent: "⚡",
+        label: "León enfadado",
+        feedback: "Enfado. Nos avisa de que algo no nos gusta o sentimos que no es justo."
+      },
+      {
+        key: "miedo",
+        name: "Miedo",
+        image: "images/miedo.png",
+        animal: "cat",
+        mood: "scared",
+        accent: "!",
+        label: "Gatita atenta",
+        feedback: "Miedo. Aparece cuando necesitamos sentirnos seguros."
+      },
+      {
+        key: "amor",
+        name: "Amor",
+        image: "images/amor.png",
+        animal: "bear",
+        mood: "love",
+        accent: "♥",
+        label: "Osito amoroso",
+        feedback: "Amor. Lo sentimos cuando cuidamos, ayudamos y queremos."
+      }
+    ];
+
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const finalScreen = document.getElementById("finalScreen");
+
+    const board = document.getElementById("board");
+    const feedback = document.getElementById("feedback");
+    const attemptsEl = document.getElementById("attempts");
+    const pairsEl = document.getElementById("pairs");
+    const finalAttemptsEl = document.getElementById("finalAttempts");
+
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let deck = [];
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+    let attempts = 0;
+    let matchedPairs = 0;
+
+    startBtn.addEventListener("click", () => {
+      initGame();
+      showScreen("game");
+    });
+
+    restartBtn.addEventListener("click", () => {
+      initGame();
+      showScreen("game");
+    });
+
+    function showScreen(screen) {
+      startScreen.classList.remove("active");
+      gameScreen.classList.remove("active");
+      finalScreen.classList.remove("active");
+
+      if (screen === "start") startScreen.classList.add("active");
+      if (screen === "game") gameScreen.classList.add("active");
+      if (screen === "final") finalScreen.classList.add("active");
+    }
+
+    function initGame() {
+      attempts = 0;
+      matchedPairs = 0;
+      firstCard = null;
+      secondCard = null;
+      lockBoard = false;
+
+      attemptsEl.textContent = String(attempts);
+      pairsEl.textContent = String(matchedPairs);
+      feedback.textContent = "Gira dos cartas para empezar. Busca las dos imágenes iguales.";
+
+      deck = createDeck();
+      renderBoard(deck);
+    }
+
+    function createDeck() {
+      const cards = emotions.flatMap((emotion) => [
+        {
+          id: `${emotion.key}-image-a`,
+          emotionKey: emotion.key,
+          type: "image-a",
+          value: emotion
+        },
+        {
+          id: `${emotion.key}-image-b`,
+          emotionKey: emotion.key,
+          type: "image-b",
+          value: emotion
+        }
+      ]);
+
+      return shuffle(cards);
+    }
+
+    function shuffle(array) {
+      const clone = [...array];
+      for (let index = clone.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [clone[index], clone[swapIndex]] = [clone[swapIndex], clone[index]];
+      }
+      return clone;
+    }
+
+    function renderBoard(cards) {
+      board.innerHTML = "";
+
+      cards.forEach((cardData, index) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "card";
+        card.dataset.index = String(index);
+        card.dataset.emotion = cardData.emotionKey;
+        card.dataset.type = cardData.type;
+        card.setAttribute("aria-label", "Carta boca abajo");
+
+        const inner = document.createElement("span");
+        inner.className = "card-inner";
+
+        const back = document.createElement("span");
+        back.className = "card-face card-back";
+        back.innerHTML = '<span class="back-symbol">?</span>';
+
+        const front = document.createElement("span");
+        front.className = "card-face card-front";
+        front.dataset.emotion = cardData.emotionKey;
+
+        front.appendChild(createEmotionImage(cardData.value));
+
+        inner.appendChild(back);
+        inner.appendChild(front);
+        card.appendChild(inner);
+        board.appendChild(card);
+
+        card.addEventListener("click", onCardClick);
+      });
+    }
+
+    function createEmotionImage(emotion) {
+      const wrapper = document.createElement("span");
+      wrapper.className = "emotion-image-card";
+
+      const image = document.createElement("img");
+      image.className = "emotion-image";
+      image.src = emotion.image;
+      image.alt = emotion.name;
+      image.draggable = false;
+
+      const name = document.createElement("span");
+      name.className = "emotion-name";
+      name.textContent = emotion.name;
+
+      wrapper.append(image, name);
+      return wrapper;
+    }
+
+    function createAnimalIllustration(emotion) {
+      const wrapper = document.createElement("span");
+      wrapper.className = "animal-card";
+
+      const animal = document.createElement("span");
+      animal.className = "animal";
+      animal.dataset.animal = emotion.animal;
+      animal.dataset.mood = emotion.mood;
+      animal.setAttribute("aria-hidden", "true");
+
+      const symbol = document.createElement("span");
+      symbol.className = "animal-symbol";
+      symbol.textContent = emotion.accent;
+
+      const leftEar = document.createElement("span");
+      leftEar.className = "animal-ear left";
+
+      const rightEar = document.createElement("span");
+      rightEar.className = "animal-ear right";
+
+      const head = document.createElement("span");
+      head.className = "animal-head";
+
+      const eyes = document.createElement("span");
+      eyes.className = "animal-eyes";
+      eyes.innerHTML = '<span class="animal-eye left"></span><span class="animal-eye right"></span>';
+
+      const nose = document.createElement("span");
+      nose.className = "animal-nose";
+
+      const mouth = document.createElement("span");
+      mouth.className = "animal-mouth";
+
+      const blush = document.createElement("span");
+      blush.className = "animal-blush";
+
+      animal.append(symbol, leftEar, rightEar, head, eyes, nose, mouth, blush);
+
+      const label = document.createElement("span");
+      label.className = "animal-label";
+      label.textContent = emotion.label;
+
+      wrapper.append(animal, label);
+      return wrapper;
+    }
+
+    function onCardClick(event) {
+      const clickedCard = event.currentTarget;
+
+      if (lockBoard) return;
+      if (clickedCard === firstCard) return;
+      if (clickedCard.classList.contains("matched")) return;
+
+      flipCard(clickedCard);
+
+      if (!firstCard) {
+        firstCard = clickedCard;
+        return;
+      }
+
+      secondCard = clickedCard;
+      attempts += 1;
+      attemptsEl.textContent = String(attempts);
+      checkPair();
+    }
+
+    function flipCard(card) {
+      card.classList.add("flipped");
+      card.setAttribute("aria-label", "Carta descubierta");
+    }
+
+    function checkPair() {
+      if (!firstCard || !secondCard) return;
+
+      lockBoard = true;
+
+      const sameEmotion = firstCard.dataset.emotion === secondCard.dataset.emotion;
+      const differentType = firstCard.dataset.type !== secondCard.dataset.type;
+      const isMatch = sameEmotion && differentType;
+
+      if (isMatch) {
+        handleMatch(firstCard.dataset.emotion);
+      } else {
+        handleMismatch();
+      }
+    }
+
+    function handleMatch(emotionKey) {
+      firstCard.classList.add("matched");
+      secondCard.classList.add("matched");
+
+      firstCard.disabled = true;
+      secondCard.disabled = true;
+
+      matchedPairs += 1;
+      pairsEl.textContent = String(matchedPairs);
+
+      const emotion = emotions.find((item) => item.key === emotionKey);
+      feedback.textContent = emotion ? emotion.feedback : "¡Pareja encontrada!";
+
+      resetTurn();
+
+      if (matchedPairs === emotions.length) {
+        setTimeout(() => {
+          finalAttemptsEl.textContent = String(attempts);
+          showScreen("final");
+        }, 500);
+      }
+    }
+
+    function handleMismatch() {
+      feedback.textContent = "Buena prueba. Respira y vuelve a intentarlo.";
+
+      setTimeout(() => {
+        if (firstCard) {
+          firstCard.classList.remove("flipped");
+          firstCard.setAttribute("aria-label", "Carta boca abajo");
+        }
+
+        if (secondCard) {
+          secondCard.classList.remove("flipped");
+          secondCard.setAttribute("aria-label", "Carta boca abajo");
+        }
+
+        resetTurn();
+      }, 900);
+    }
+
+    function resetTurn() {
+      firstCard = null;
+      secondCard = null;
+      lockBoard = false;
+    }
+
+    showScreen("start");
+  </script>
+</body>
+</html>

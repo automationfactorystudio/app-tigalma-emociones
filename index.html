@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Cómo está tu corazón hoy? · Pequeños Corazones</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ===== CABECERA ===== -->
+    <header class="cabecera">
+
+        <div class="cabecera-contenido">
+
+            <img
+                src="assets/img/marca/logo-tigalma.png"
+                alt="Tigalma – Cuentos que acompañan"
+                class="cabecera-logo"
+            >
+
+            <div class="cabecera-textos">
+                <p class="cabecera-nombre">Pequeños Corazones</p>
+                <p class="cabecera-lema">Emociones que nos unen</p>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+
+        <!-- Vídeo de fondo en bucle -->
+        <div class="hero-video-wrap">
+            <video
+                class="hero-video"
+                src="assets/video/video-hero.mp4"
+                autoplay
+                loop
+                muted
+                playsinline
+                preload="auto"
+                aria-hidden="true"
+            ></video>
+            <div class="hero-overlay"></div>
+        </div>
+
+        <!-- Contenido centrado -->
+        <div class="hero-contenido">
+
+            <h1>¿Cómo está<br>tu corazón hoy?</h1>
+
+            <p class="hero-sub">
+                Elige cómo te sientes y encontraremos<br>
+                una historia para acompañarte.
+            </p>
+
+            <a href="#tarjetasSeccion" class="hero-cta">
+                Explorar emociones 💛
+            </a>
+
+        </div>
+
+        <!-- Indicador de scroll -->
+        <div class="hero-scroll" aria-hidden="true">
+            <span></span>
+        </div>
+
+    </section>
+
+
+    <!-- ===== TARJETAS ===== -->
+    <section class="tarjetas-seccion" id="tarjetasSeccion">
+
+        <div class="tarjetas-grid" id="tarjetasGrid">
+            <!-- Las tarjetas se generan automáticamente -->
+        </div>
+
+    </section>
+
+
+    <!-- ===== DETALLE ===== -->
+    <section
+        class="detalle"
+        id="detalle"
+        hidden
+        aria-live="polite"
+    >
+
+        <div class="detalle-cuerpo">
+
+            <!-- BOTÓN VOLVER -->
+            <button class="btn-volver" id="btnVolver">
+                ← Elegir otra emoción
+            </button>
+
+
+            <!-- CABECERA DETALLE -->
+            <div class="detalle-top">
+
+                <div class="detalle-imagen-marco">
+
+                    <img
+                        id="detalleImg"
+                        src=""
+                        alt=""
+                        class="detalle-img"
+                    >
+
+                </div>
+
+
+                <div class="detalle-mensaje-wrap">
+
+                    <p
+                        class="detalle-emocion-nombre"
+                        id="detalleNombre"
+                    ></p>
+
+                    <p
+                        class="detalle-mensaje"
+                        id="detalleMensaje"
+                    ></p>
+
+                </div>
+
+            </div>
+
+
+            <!-- GRID BLOQUES -->
+            <div class="detalle-grid">
+
+                <div class="bloque">
+
+                    <span class="bloque-emoji">📖</span>
+
+                    <div class="bloque-texto">
+                        <h3>Cuento recomendado</h3>
+                        <p id="bloqueCuento"></p>
+                    </div>
+
+                </div>
+
+
+                <div class="bloque">
+
+                    <span class="bloque-emoji">🎨</span>
+
+                    <div class="bloque-texto">
+                        <h3>Actividad en familia</h3>
+                        <p id="bloqueActividad"></p>
+                    </div>
+
+                </div>
+
+
+                <div class="bloque">
+
+                    <span class="bloque-emoji">💬</span>
+
+                    <div class="bloque-texto">
+                        <h3>Una pregunta para conversar</h3>
+                        <p id="bloquePregunta"></p>
+                    </div>
+
+                </div>
+
+
+                <!-- PAPÁS -->
+                <div class="bloque bloque-padres">
+
+                    <span class="bloque-emoji">💛</span>
+
+                    <div class="bloque-texto">
+                        <h3>Para papás y mamás</h3>
+                        <p id="bloqueConsejo"></p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- BOTONES -->
+            <div class="detalle-botones">
+
+                <a
+                    id="btnCuento"
+                    href="#"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn btn-oscuro"
+                >
+                    📖 Ver cuento
+                </a>
+
+
+                <a
+                    id="btnActividad"
+                    href="#actividades"
+                    class="btn btn-claro"
+                >
+                    🎨 Hacer actividad
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===== EXPLORA MÁS ===== -->
+    <section class="extra">
+
+        <h2>Explora más en Pequeños Corazones</h2>
+
+        <!-- TARJETA DESTACADA: Cuentos -->
+        <a
+            class="tarjeta-destacada"
+            href="https://automationfactorystudio.github.io/cuentos-para-cada-emocion/"
+            target="_blank"
+            rel="noopener"
+        >
+            <div class="tarjeta-destacada-img">
+                <img
+                    src="assets/img/secciones/cuentos-sobre-emociones.png"
+                    alt="Cuentos sobre emociones"
+                >
+            </div>
+
+            <div class="tarjeta-destacada-contenido">
+                <span class="tarjeta-badge">Para niños de 4 a 8 años</span>
+                <h3>Cuentos sobre emociones</h3>
+                <p>Historias tiernas para ayudar a los niños a reconocer lo que sienten: tristeza, alegría, miedo, sorpresa, calma y mucho más.</p>
+                <span class="tarjeta-btn">Ver cuentos emocionales</span>
+            </div>
+        </a>
+
+
+        <!-- TARJETA DESTACADA: Juegos -->
+        <div class="tarjeta-destacada tarjeta-destacada--juegos">
+
+            <div class="tarjeta-destacada-img">
+                <img
+                    src="assets/img/secciones/hero-juegos-emocionales.jpeg"
+                    alt="Aprende jugando con las emociones"
+                >
+            </div>
+
+            <div class="tarjeta-destacada-contenido">
+
+                <span class="tarjeta-badge tarjeta-badge--verde">Aprendizaje emocional interactivo</span>
+
+                <h3>Aprende jugando con las emociones</h3>
+
+                <p>Mini juegos sencillos para que los niños exploren lo que sienten, aprendan a expresarlo y practiquen pequeñas estrategias emocionales.</p>
+
+                <div class="juegos-grid">
+
+                    <a class="juego-card" href="que-harias-tu/" aria-label="¿Qué harías tú?">
+                        <span class="juego-icono">🤔</span>
+                        <h4>¿Qué harías tú?</h4>
+                        <p>Descubre distintas formas de actuar en situaciones cotidianas.</p>
+                    </a>
+
+                    <a class="juego-card" href="descubre-tus-emociones/" aria-label="Descubre tus emociones">
+                        <span class="juego-icono">😊</span>
+                        <h4>Descubre tus emociones</h4>
+                        <p>Explora cómo te sientes y aprende a reconocer tus emociones.</p>
+                    </a>
+
+                    <a class="juego-card" href="memory-emocional/" aria-label="Memory emocional">
+                        <span class="juego-icono">🃏</span>
+                        <h4>Memory emocional</h4>
+                        <p>Encuentra parejas de emociones y ejercita tu memoria.</p>
+                    </a>
+
+                    <a class="juego-card" href="la-mochila-emocional/" aria-label="La mochila emocional">
+                        <span class="juego-icono">🎒</span>
+                        <h4>La mochila emocional</h4>
+                        <p>Guarda herramientas y recursos para los momentos difíciles.</p>
+                    </a>
+
+                    <a class="juego-card" href="semaforo-emocional/" aria-label="Semáforo emocional">
+                        <span class="juego-icono">🚦</span>
+                        <h4>Semáforo emocional</h4>
+                        <p>Aprende a parar, pensar y actuar antes de reaccionar.</p>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TARJETA DESTACADA: Cuentos para dormir -->
+        <a
+            class="tarjeta-destacada"
+            href="https://www.youtube.com/watch?v=W9XTf7AqIWI"
+            target="_blank"
+            rel="noopener"
+        >
+            <div class="tarjeta-destacada-img">
+                <img
+                    src="assets/img/secciones/cuentos-para-dormir.jpeg"
+                    alt="Cuentos para dormir"
+                >
+            </div>
+
+            <div class="tarjeta-destacada-contenido">
+                <span class="tarjeta-badge tarjeta-badge--azul">Relax y descanso</span>
+                <h3>Cuentos para dormir</h3>
+                <p>Historias suaves y relajantes para acompañar a los niños antes de dormir y ayudarles a terminar el día con calma.</p>
+                <span class="tarjeta-btn">Ver cuentos</span>
+            </div>
+        </a>
+
+
+    </section>
+
+
+    <!-- ===== FRASE FINAL ===== -->
+    <section class="frase-final">
+
+        <p>
+            💛 Todas las emociones son importantes.
+            Aquí estamos para acompañarte.
+        </p>
+
+    </section>
+
+
+    <!-- ===== SECCIÓN CRECIENDO ===== -->
+    <section class="creciendo">
+
+        <div class="creciendo-tarjeta">
+
+            <p class="creciendo-icono">🌱</p>
+
+            <p class="creciendo-titulo">
+                Pequeños Corazones está creciendo<br>con mucho cariño.
+            </p>
+
+            <p class="creciendo-sub">
+                Muy pronto llegarán nuevos cuentos,<br>
+                juegos y actividades 🌈
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="pie">
+
+        <img
+            src="assets/img/marca/logo-transparente.png"
+            alt="Tigalma"
+            class="pie-logo"
+        >
+
+        <p>Tigalma · Cuentos que acompañan</p>
+
+        <a
+            href="https://www.youtube.com/@UniversoTigalma"
+            target="_blank"
+            rel="noopener"
+            class="pie-youtube"
+        >
+            ▶ @Universo Tigalma
+        </a>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
