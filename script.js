@@ -20,12 +20,12 @@ const EMOCIONES = [
         colorPagina: '#FFFBEE',
 
         mensaje: 'Tu corazón brilla hoy.',
-        cuento: 'El día que la alegría llenó la casa',
+        cuento: 'La sorpresa más bonita de Sofía',
         actividad: 'Dibuja tres cosas que te han hecho sonreír.',
         pregunta: '¿Con quién quieres compartir tu alegría?',
         consejo: 'La alegría también se acompaña. Celebrad juntos ese momento.',
 
-        youtube: 'AQUI-VA-EL-ENLACE-CUENTO-YOUTUBE-ALEGRIA',
+        youtube: 'https://youtu.be/I-VAZphwt9A?si=-BO64sx43V8VWdDS',
         actividadUrl: '#actividades'
     },
     {
@@ -38,12 +38,12 @@ const EMOCIONES = [
         colorPagina: '#EFF6FB',
 
         mensaje: 'Tu corazón necesita un abrazo.',
-        cuento: 'La nube que aprendió a llorar',
+        cuento: 'Lía y la gotita azul',
         actividad: 'Dibuja una nube y colorea dentro lo que sientes.',
         pregunta: '¿Qué te ayudaría a sentirte un poquito mejor?',
         consejo: 'No intentes quitar la tristeza rápido. Primero acompaña.',
 
-        youtube: 'AQUI-VA-EL-ENLACE-CUENTO-YOUTUBE-TRISTEZA',
+        youtube: 'https://youtu.be/EWmdk5-X2L8?si=YHBxHPHOlDv3KOeQ',
         actividadUrl: '#actividades'
     },
     {
@@ -56,12 +56,12 @@ const EMOCIONES = [
         colorPagina: '#FFF3EE',
 
         mensaje: 'Tu corazón está muy fuerte ahora.',
-        cuento: 'El volcán que aprendió a respirar',
+        cuento: 'Alex y la nube de tormenta',
         actividad: 'Haz tres respiraciones de dragón.',
         pregunta: '¿Qué te ha molestado?',
         consejo: 'Pon límite con calma, pero reconoce primero la emoción.',
 
-        youtube: 'AQUI-VA-EL-ENLACE-CUENTO-YOUTUBE-ENFADO',
+        youtube: 'https://youtu.be/QJEqc9NayCI?si=p9V6dKx0_o06ElHs',
         actividadUrl: '#actividades'
     },
     {
@@ -74,12 +74,12 @@ const EMOCIONES = [
         colorPagina: '#F5F0FE',
 
         mensaje: 'Tu corazón busca seguridad.',
-        cuento: 'La pequeña luz en la habitación',
+        cuento: 'Tino y la linterna mágica',
         actividad: 'Dibuja una luz mágica que te acompaña.',
         pregunta: '¿Qué necesitarías para sentirte más seguro?',
         consejo: 'El miedo no se ridiculiza. Se acompaña con ternura.',
 
-        youtube: 'AQUI-VA-EL-ENLACE-CUENTO-YOUTUBE-MIEDO',
+        youtube: 'https://youtu.be/V8aa6kuELOo',
         actividadUrl: '#actividades'
     },
     {
@@ -92,12 +92,12 @@ const EMOCIONES = [
         colorPagina: '#EEF9F4',
 
         mensaje: 'Tu corazón pide descanso.',
-        cuento: 'El osito que bajó el ritmo',
+        cuento: 'El Universo de Milo',
         actividad: 'Respira como una ola en un rincón tranquilo.',
         pregunta: '¿Qué parte de tu cuerpo necesita descansar?',
         consejo: 'A veces detrás de una rabieta solo hay cansancio.',
 
-        youtube: 'AQUI-VA-EL-ENLACE-CUENTO-YOUTUBE-CANSANCIO',
+        youtube: 'https://youtu.be/8EeyOeejXsA',
         actividadUrl: '#actividades'
     },
     {
@@ -110,12 +110,12 @@ const EMOCIONES = [
         colorPagina: '#FEF0F4',
 
         mensaje: 'Tu corazón quiere sentirse cerca.',
-        cuento: 'El abrazo invisible',
+        cuento: 'Nico y su abrigo invisible',
         actividad: 'Inventad un abrazo especial de familia.',
         pregunta: '¿Cómo te gusta que te cuiden?',
         consejo: 'La conexión emocional suele venir antes que la corrección.',
 
-        youtube: 'AQUI-VA-EL-ENLACE-CUENTO-YOUTUBE-CARINO',
+        youtube: 'https://youtu.be/uVnvofCvdNk',
         actividadUrl: '#actividades'
     }
 ];
@@ -172,9 +172,7 @@ const bloqueCuento = document.getElementById('bloqueCuento');
 const bloqueActividad = document.getElementById('bloqueActividad');
 const bloquePregunta = document.getElementById('bloquePregunta');
 const bloqueConsejo = document.getElementById('bloqueConsejo');
-
-const btnCuento = document.getElementById('btnCuento');
-const btnActividad = document.getElementById('btnActividad');
+const bloqueCuentoLink = document.getElementById('bloqueCuentoLink');
 
 
 /* ─────────────────────────────────────────────────────
@@ -193,9 +191,8 @@ function abrirDetalle(em) {
     bloqueActividad.textContent = em.actividad;
     bloquePregunta.textContent = em.pregunta;
     bloqueConsejo.textContent = em.consejo;
-
-    btnCuento.href = em.youtube || '#cuentos';
-    btnActividad.href = em.actividadUrl || '#actividades';
+    bloqueCuentoLink.href = em.youtube || '#';
+    bloqueCuentoLink.hidden = !em.youtube;
 
     document.body.style.backgroundColor = em.colorPagina;
     panelDetalle.style.backgroundColor = em.colorPagina;
