@@ -92,12 +92,12 @@ const EMOCIONES = [
         colorPagina: '#EEF9F4',
 
         mensaje: 'Tu corazón pide descanso.',
-        cuento: 'El Universo de Milo',
+        cuento: 'El secreto del Reloj',
         actividad: 'Respira como una ola en un rincón tranquilo.',
         pregunta: '¿Qué parte de tu cuerpo necesita descansar?',
         consejo: 'A veces detrás de una rabieta solo hay cansancio.',
 
-        youtube: 'https://youtu.be/8EeyOeejXsA',
+        youtube: 'https://youtu.be/4FjYOCDQe1k',
         actividadUrl: '#actividades'
     },
     {
