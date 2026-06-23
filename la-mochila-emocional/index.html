@@ -455,6 +455,7 @@
     }
 
     .option-btn {
+      position: relative;
       min-height: 92px;
       padding: 14px;
       border-radius: 22px;
@@ -569,6 +570,48 @@
       25% { transform: translateX(-6px); }
       50% { transform: translateX(6px); }
       75% { transform: translateX(-4px); }
+    }
+
+    .feedback-icon {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 900;
+      line-height: 1;
+      animation: iconBounce 0.35s ease alternate infinite;
+    }
+
+    .feedback-icon.correct-icon {
+      background: #4fd38d;
+      color: white;
+    }
+
+    .feedback-icon.wrong-icon {
+      background: #ff8f78;
+      color: white;
+    }
+
+    @keyframes iconBounce {
+      from { transform: translateY(-50%) scale(1); }
+      to { transform: translateY(-50%) scale(1.22); }
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
     }
 
     @media (max-width: 920px) {
@@ -1088,6 +1131,75 @@
       });
     }
 
+    function playSound(type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = {
+          success: [261.63, 329.63, 392.00, 523.25],
+          fail: [160, 130],
+          complete: [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]
+        };
+        const spacing = { success: 0.07, fail: 0.12, complete: 0.09 };
+        const waveform = type === "fail" ? "sawtooth" : "triangle";
+        (notes[type] || notes.success).forEach((hz, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = waveform;
+          osc.frequency.value = hz;
+          const t = ctx.currentTime + i * spacing[type];
+          gain.gain.setValueAtTime(0.18, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+          osc.start(t);
+          osc.stop(t + 0.22);
+        });
+      } catch (e) {}
+    }
+
+    function triggerConfetti() {
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const colors = ["#FF7B9C","#FFC75F","#845EC2","#D65DB1","#4FFBDF","#4D96FF","#6BCB77"];
+      const particles = Array.from({ length: 90 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        w: 8 + Math.random() * 8,
+        h: 8 + Math.random() * 8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speedX: (Math.random() - 0.5) * 4,
+        speedY: 2 + Math.random() * 4,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.2
+      }));
+      let frame;
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p) => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+          p.speedY += 0.35;
+          p.speedX *= 0.98;
+          p.angle += p.spin;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        if (particles.some((p) => p.y < canvas.height + 20)) {
+          frame = requestAnimationFrame(draw);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      if (frame) cancelAnimationFrame(frame);
+      draw();
+    }
+
     function handleAnswer(selectedTool, selectedButton, current) {
       if (state.answered) {
         return;
@@ -1097,6 +1209,8 @@
       const buttons = [...optionsGrid.querySelectorAll(".option-btn")];
       const isCorrect = selectedTool === current.correctTool;
 
+      playSound(isCorrect ? "success" : "fail");
+
       buttons.forEach((button) => {
         button.disabled = true;
         if (button !== selectedButton) {
@@ -1104,6 +1218,10 @@
         }
         if (button.textContent.includes(current.correctTool)) {
           button.classList.add("correct");
+          const icon = document.createElement("span");
+          icon.className = "feedback-icon correct-icon";
+          icon.textContent = "✓";
+          button.appendChild(icon);
         }
       });
 
@@ -1114,15 +1232,19 @@
         addToolToBackpack(current.correctTool);
         feedbackPanel.classList.add("good");
         feedbackPanel.innerHTML = `
-          <div class="feedback-title">¡Muy bien! Esa herramienta ayuda a cuidar tu corazón.</div>
+          <div class="feedback-title">🎉 ¡SÚPER BIEN! Esa herramienta ayuda a cuidar tu corazón.</div>
           <p>${current.explanation}</p>
           <p>La emoción principal aquí es ${current.emotion.toLowerCase()}, y esta herramienta puede acompañarte de forma saludable.</p>
         `;
       } else {
         selectedButton.classList.add("wrong");
+        const wrongIcon = document.createElement("span");
+        wrongIcon.className = "feedback-icon wrong-icon";
+        wrongIcon.textContent = "✗";
+        selectedButton.appendChild(wrongIcon);
         feedbackPanel.classList.add("try");
         feedbackPanel.innerHTML = `
-          <div class="feedback-title">Casi, casi... quizá otra herramienta ayudaría mejor en esta situación.</div>
+          <div class="feedback-title">Casi, casi… quizá otra herramienta ayudaría mejor aquí 💪</div>
           <p>${current.explanation}</p>
           <p>La emoción principal aquí es ${current.emotion.toLowerCase()}, y por eso <strong>${current.correctTool}</strong> encaja mejor.</p>
         `;
@@ -1169,6 +1291,8 @@
         celebrationStickers.appendChild(sticker);
       }
       showScreen("final");
+      triggerConfetti();
+      playSound("complete");
     }
 
     nextBtn.addEventListener("click", () => {
@@ -1190,6 +1314,7 @@
       showScreen("game");
     });
   </script>
+  <canvas id="confetti-canvas"></canvas>
 <script>(function(){var b=document.createElement("a");b.href="../index.html";b.textContent="🏠 Volver al inicio";b.style.cssText="position:fixed;top:16px;left:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.95);color:#314052;text-decoration:none;padding:8px 18px;border-radius:999px;font-size:0.85rem;font-weight:600;box-shadow:0 3px 16px rgba(0,0,0,0.15);border:1px solid rgba(0,0,0,0.09);font-family:inherit;";document.body.appendChild(b);})();</script>
 </body>
 </html>

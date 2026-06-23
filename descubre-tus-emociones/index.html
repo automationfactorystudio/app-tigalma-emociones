@@ -446,6 +446,7 @@
       font-weight: 800;
       color: #fff;
       cursor: pointer;
+      position: relative;
       transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
       box-shadow: 0 12px 20px rgba(91, 120, 147, 0.18);
     }
@@ -628,6 +629,50 @@
       .answer-btn {
         min-height: 56px;
       }
+    }
+
+    .feedback-icon {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 900;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .feedback-icon.correct-icon {
+      background: #22c55e;
+      color: white;
+      animation: iconBounce 0.45s ease infinite alternate;
+    }
+
+    .feedback-icon.wrong-icon {
+      background: #ec4899;
+      color: white;
+    }
+
+    @keyframes iconBounce {
+      from { transform: translateY(-50%) scale(1); }
+      to   { transform: translateY(-50%) scale(1.22); }
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
     }
   </style>
 </head>
@@ -876,6 +921,88 @@
       });
     }
 
+    function playSound(type) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (type === "success") {
+          const notes = [261.63, 329.63, 392.00, 523.25];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.07);
+            gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.07 + 0.25);
+            osc.start(ctx.currentTime + idx * 0.07);
+            osc.stop(ctx.currentTime + idx * 0.07 + 0.25);
+          });
+        } else if (type === "fail") {
+          const notes = [160, 130];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.12);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime + idx * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.2);
+            osc.start(ctx.currentTime + idx * 0.12);
+            osc.stop(ctx.currentTime + idx * 0.12 + 0.2);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function triggerConfetti() {
+      const canvas = document.getElementById("confetti-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const colors = ["#FF7B9C","#FFC75F","#845EC2","#D65DB1","#4FFBDF","#4D96FF","#6BCB77"];
+      const particles = [];
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height - 20,
+          size: Math.random() * 8 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          speedX: (Math.random() - 0.5) * 12,
+          speedY: -Math.random() * 14 - 8,
+          angle: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 10
+        });
+      }
+      let rafId;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+          p.speedY += 0.35;
+          p.speedX *= 0.98;
+          p.angle += p.rotationSpeed;
+          if (p.y < canvas.height + 20) alive = true;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle * Math.PI / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+        if (alive) { rafId = requestAnimationFrame(animate); }
+        else { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+      }
+      if (rafId) cancelAnimationFrame(rafId);
+      animate();
+    }
+
     function handleAnswer(selectedEmotion, button) {
       if (hasAnswered) {
         return;
@@ -887,9 +1014,12 @@
       const correctEmotion = emotionInfo[current.emotion];
       const buttons = answers.querySelectorAll(".answer-btn");
 
+      playSound(isCorrect ? "success" : "fail");
+
       if (isCorrect) {
         score += 1;
         scoreChip.textContent = `Aciertos: ${score}`;
+        triggerConfetti();
       }
 
       buttons.forEach((answerButton) => {
@@ -902,17 +1032,25 @@
 
         if (emotion === current.emotion) {
           answerButton.classList.add("correct");
+          const icon = document.createElement("span");
+          icon.className = "feedback-icon correct-icon";
+          icon.textContent = "✓";
+          answerButton.appendChild(icon);
         }
 
         if (emotion === selectedEmotion && !isCorrect) {
           answerButton.classList.add("incorrect");
+          const icon = document.createElement("span");
+          icon.className = "feedback-icon wrong-icon";
+          icon.textContent = "✗";
+          answerButton.appendChild(icon);
         }
       });
 
       feedback.classList.add("show", isCorrect ? "good" : "retry");
       feedbackTitle.textContent = isCorrect
-        ? "¡Muy bien! Has escuchado a tu corazón."
-        : "Casi, casi… vamos a mirarlo con calma.";
+        ? "🎉 ¡SÚPER BIEN! Has escuchado a tu corazón."
+        : "Casi, casi… vamos a mirarlo con calma 💪";
       feedbackText.textContent = correctEmotion.explanation;
       nextButton.classList.add("show");
       button.blur();
@@ -939,6 +1077,7 @@
     nextButton.addEventListener("click", goNext);
     restartButton.addEventListener("click", startGame);
   </script>
+  <canvas id="confetti-canvas"></canvas>
   <script>(function(){var b=document.createElement("a");b.href="../index.html";b.textContent="🏠 Volver al inicio";b.style.cssText="position:fixed;top:16px;left:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;background:#5D4A45;color:#ffffff;text-decoration:none;padding:8px 18px;border-radius:999px;font-size:0.85rem;font-weight:600;box-shadow:0 3px 16px rgba(0,0,0,0.25);border:none;font-family:inherit;";document.body.appendChild(b);})();</script>
 </body>
 </html>
